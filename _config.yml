@@ -7,7 +7,7 @@ subtitle:
 description:
 keywords:
 author: 'I AM Monkey Meng'
-language:
+language: zh-CN
 timezone:
 
 # URL
@@ -72,8 +72,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-##https://github.com/aircloud/hexo-theme-aircloud
-theme: hexo-theme-aircloud
+theme: hexo-theme-next
 
 search: 
   path: search.json
