@@ -72,8 +72,12 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+##https://github.com/aircloud/hexo-theme-aircloud
+theme: hexo-theme-aircloud
 
+search: 
+  path: search.json
+  field: post
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
