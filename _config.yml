@@ -2,11 +2,11 @@
 ## Docs: https://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/=
 # Site
-title: Hexo
-subtitle:
-description:
-keywords:
-author: 'I AM Monkey Meng'
+title: 狂暴的小猴儿
+subtitle: CrazyMonkey
+description:想起啥来写点啥
+keywords: Java 
+author: 'CrazyMonkey'
 language: zh-CN
 timezone:
 
