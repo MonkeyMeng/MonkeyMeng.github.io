@@ -362,7 +362,7 @@ reward_settings:
   #comment: Donate comment here
 
 reward:
-  #wechatpay: /images/wechatpay.png
+  wechatpay: /images/wechataccount.jpg.png
   #alipay: /images/alipay.png
   #bitcoin: /images/bitcoin.png
 
@@ -1209,3 +1209,5 @@ vendors:
 css: css
 js: js
 images: images
+passage_end_tag:
+  enabled: true
