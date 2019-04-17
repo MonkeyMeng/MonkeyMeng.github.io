@@ -310,6 +310,179 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/17/设计模式-模板/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/04/17/设计模式-模板/" class="post-title-link" itemprop="url">设计模式-模板</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-17 11:46:37 / 修改时间：17:56:12" itemprop="dateCreated datePublished" datetime="2019-04-17T11:46:37+08:00">2019-04-17</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="例行闲扯"><a href="#例行闲扯" class="headerlink" title="例行闲扯"></a>例行闲扯</h2><p>模板方法模式比较简单,是解释面向抽象编程一个很好的例子,模版方法的应用场景实际上就四个字<strong>流程提取</strong>.比如我们发工资-&gt;请老婆吃饭-&gt;上交工资,这就是一个很典型的流程.至于你发了多少,吃的什么,上交时候痛苦或快乐,都是实现.对于关注流程的应用场景来讲,我们并不关心实现.</p>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p>上面发工资那个例子还挺好的,如果学会了模版模式的话可以试着写一下.我们举一个更通用的例子,比如http接口、在访问数据的时候都需要对登录的人进行权限的校验,大部分是基于session的.我们假定校验分三步:身份校验-&gt;接口地址校验-&gt;权限校验.ok了,我们在不知不觉中就抽象出了一个鉴权流程,和上面那个工资流程是一样一样的.有的同学说,抽象这个流程有啥用么,我直接写三个方法去调用查数据库不就得了么,OK 单体应用没毛病,但是如果你有多个服务都需要鉴权呢,每个服务又有自己的鉴权方式呢,每一个都写三个方法么?<strong>做抽象,是为了更好的复用</strong>.</p>
+<h2 id="上代码"><a href="#上代码" class="headerlink" title="上代码"></a>上代码</h2> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.template;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span>  <span class="class"><span class="keyword">class</span> <span class="title">AuthController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">abstract</span> <span class="keyword">boolean</span> <span class="title">isUserLegal</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">abstract</span> <span class="keyword">boolean</span> <span class="title">isUrlLegal</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">abstract</span> <span class="keyword">boolean</span> <span class="title">isUserAuthenticated</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">auth</span><span class="params">(Request request)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(isUserLegal()&amp;&amp;isUrlLegal()&amp;&amp;isUserAuthenticated())&#123;</span><br><span class="line">            System.out.println(<span class="string">"鉴权成功"</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"鉴权失败"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//模拟接口过来的请求对象</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Request</span></span>&#123;</span><br><span class="line">        String userId;</span><br><span class="line"></span><br><span class="line">        String sessionId;</span><br><span class="line"></span><br><span class="line">        String requestUrl;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+<p> AuthContrller模拟请求处理类,注意:他的三个鉴权方法全部都是抽象的,只提供了一个具体的鉴权入口auth方法,现在代码写好了,领导规定,所有系统全部都要接入这个鉴权模块,走一样的流程,OK 来看个实现:<br><figure class="highlight java"><figcaption><span>A系统接入</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.template;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SystemAController</span> <span class="keyword">extends</span> <span class="title">AuthController</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isUserLegal</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"查啊查啊查A系统User"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isUrlLegal</span><span class="params">(String url)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"查啊查啊查A系统url"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isUserAuthenticated</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"A对所有人开放,不需要鉴权，直接返回true"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><figcaption><span>B系统接入</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.template;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SystemBController</span> <span class="keyword">extends</span> <span class="title">AuthController</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isUserLegal</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"查啊查啊查BUser"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isUrlLegal</span><span class="params">(String url)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"不进行Url鉴权，直接返回true"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isUserAuthenticated</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"查啊查啊查B是不是管理员"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们写个main方法来模拟一下请求:<br><figure class="highlight java"><figcaption><span>模拟请求</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.template;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        AuthController.Request request =  <span class="keyword">new</span> AuthController.Request(<span class="string">"111"</span>,<span class="string">"/test/info"</span>);</span><br><span class="line">        System.out.println(<span class="string">"a------"</span>);</span><br><span class="line">        <span class="keyword">new</span> SystemAController().auth(request);</span><br><span class="line">        System.out.println(<span class="string">"b------"</span>);</span><br><span class="line">        <span class="keyword">new</span> SystemBController().auth(request);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>来看下结果<br><img src="/2019/04/17/设计模式-模板/templateresult.png"><br>很明显吧,针对同一条流程A和B系统分别提供了自己的实现,如果我们是maven工程,那么我们可以把代码放在common底下,提供流程上的约束,让大家都提供实现,面向抽象编程就是好啊,我只提供约束,你们还都得听我的,美滋滋.</p>
+<h2 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h2><p>假如这个时候领导又说了,我们要把访问信息写到日志里记录一下子,但是只有部分系统才需要.当然你可以去改造ABC…各种系统啊,用什么日志框架啊什么的,但是我们想下,日志记录实际上是通用流程的一部分,只不过呢,有的系统不需要,说明此时子流程和父流程已经不是完全贴合的关系了,<strong>子流程如果对父流程产生影响的时候,我们考虑用钩子函数</strong></p>
+<figure class="highlight java"><figcaption><span>钩子函数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//定义获取日志级别的方法 -1 不打日志  1 打日志</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span>  <span class="keyword">int</span> <span class="title">logLevel</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> <span class="number">1</span>;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">auth</span><span class="params">(Request request)</span></span>&#123;</span><br><span class="line">    <span class="comment">//注意这里</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span>.logLevel()==<span class="number">1</span>)&#123;</span><br><span class="line">        System.out.println(<span class="string">"我是日志"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(isUserLegal(request.userId)&amp;&amp;isUrlLegal(request.requestUrl)&amp;&amp;isUserAuthenticated(request.userId))&#123;</span><br><span class="line">        System.out.println(<span class="string">"鉴权成功"</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"鉴权失败"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>只看关键的部分,我们定义了一个logLevel的方法,用来控制日志的输出,默认是输出的,此时如果系统A不想输出日志怎么办呢:很简单,你重写logLevel方法不就得了么,毕竟运行时this指向的是子类对象.看到这我们就明白了,整个模版方法的核心,又回到了最初的概念,父类引用指向子类对象是什么呢?多态!<br>哦,解释一下钩子,个人理解,这里的钩子就跟后门差不多,如果子流程想对父流程实现修改,那么就可以通过父流程留的这个后门操作.比如本例,loglevel就是子类钩住父类的一个钩子,带绳的那种,钩上之后可以顺着绳子爬到父类上搞点事情.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/15/设计模式-建造者/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -502,389 +675,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/11/设计模式-理论基础/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="CrazyMonkey">
-      <meta itemprop="description" content="想起啥来写点啥">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="狂暴的小猴儿">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/04/11/设计模式-理论基础/" class="post-title-link" itemprop="url">设计模式-理论基础</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-04-11 16:30:17" itemprop="dateCreated datePublished" datetime="2019-04-11T16:30:17+08:00">2019-04-11</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-04-12 14:45:53" itemprop="dateModified" datetime="2019-04-12T14:45:53+08:00">2019-04-12</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>&emsp;&emsp;各种设计模式实际上就是一种前人总结的代码设计的经验之谈,是一种编程的思维方式.运用他们可以帮我们写出简洁可扩展性强的代码.<br>&emsp;&emsp;网上的设计模式的文章大多都是举一两个简单的例子进行解释,但是不可否认 有的时候demo和实际应用场景还有一些距离,虽然明白了原理,但是真到了实际写代码的过程中不知道怎么用.遇到了冗余代码想优化也无从下手.这个设计模式的专题目的就是尽量结合实际项目的应用场景,对常用的设计模式进行举例说明,使得使用者对于各种常用设计模式有着更直观的认识.<br>下面是一些设计原则和方法论,刚开始可能理解的不深,但是熟悉了几个常用的设计模式之后,回头看这些抽象的总结就会发现,所有的设计模式都是这些方法论的具体实践,我们不讲理论,我们只是理论的搬运工:</p>
-<ul>
-<li>单一职责原则  </li>
-<li>开放封闭原则</li>
-<li>里氏替换原则</li>
-<li>依赖倒置原则</li>
-<li>接口隔离原则</li>
-<li>迪米特法则<br>详细的理论解释请参考:<a href="https://www.cnblogs.com/dolphin0520/p/3919839.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3919839.html</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <div>
-  
-</div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/11/设计模式-工厂/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="CrazyMonkey">
-      <meta itemprop="description" content="想起啥来写点啥">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="狂暴的小猴儿">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/04/11/设计模式-工厂/" class="post-title-link" itemprop="url">设计模式-工厂</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-04-11 16:29:40" itemprop="dateCreated datePublished" datetime="2019-04-11T16:29:40+08:00">2019-04-11</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-04-15 09:26:46" itemprop="dateModified" datetime="2019-04-15T09:26:46+08:00">2019-04-15</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>&emsp;&emsp;工厂是干嘛的,生产东西的呗,生产东西干什么,用呗.这个逻辑平移到编码领域,更确切的说OO编码,工厂是用来干嘛的,生产对象的,生产对象干什么,实现特定的功能,为什么对象不直接New要通过工厂生产–Ok,举个例子看一下.<br>&emsp;&emsp;你看到一个视频微博“2019年常规赛詹姆斯精彩镜头”,你知道怎么来的么?实际上背后有一个视频剪辑平台,视频编辑把一个个的镜头挑出来-&gt;剪成一个个小段-&gt;拼接-&gt;给视频起名字-&gt;推送到新浪微博.这些过程抽象一下实际上就是一个个的任务,比如我们设计一个任务表来存这些任务 任务类型分别叫 SPLIT(剪辑)-&gt;COMPOSE(拼接)-&gt;RENAME(起名字)-&gt;PUSH(推送) 编辑们干活的时候数据库产生很多条任务记录需要处理 这些任务分属于不同任务类型 这时候来吧 写代码处理一下这些任务吧</p>
-<h2 id="处理"><a href="#处理" class="headerlink" title="处理"></a>处理</h2><p>刚上来可能这么处理,下面这个taskList模拟从数据库取出来的任务列表:</p>
- <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestPattern</span> </span>&#123;</span><br><span class="line">   <span class="comment">//模拟任务类</span></span><br><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">Task</span> </span>&#123;</span><br><span class="line">       <span class="comment">//任务类型</span></span><br><span class="line">       String taskType;</span><br><span class="line">       <span class="comment">//视频Id</span></span><br><span class="line">       String targetId;</span><br><span class="line">       Task(String taskType, String targetId) &#123;</span><br><span class="line">           <span class="keyword">this</span>.taskType = taskType;</span><br><span class="line">           <span class="keyword">this</span>.targetId = targetId;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//*********准备数据开始********</span></span><br><span class="line">       List&lt;Task&gt; taskList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">       TestPattern tp = <span class="keyword">new</span> TestPattern();</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"SPLIT"</span>, <span class="string">"111"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"COMPOSE"</span>, <span class="string">"222"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"RENAME"</span>, <span class="string">"111"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"TEST"</span>, <span class="string">"111"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"PUSH"</span>, <span class="string">"222"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"PUSH"</span>, <span class="string">"333"</span>));</span><br><span class="line">       <span class="comment">//********准备数据结束 下面是核心代码*********</span></span><br><span class="line">       <span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">           <span class="comment">//任务处理的过程 可能是代码处理/调用其他系统接口/调用其他类 在这里简单的输出一下方便处理</span></span><br><span class="line">           <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">               System.out.println(<span class="string">"处理拆条任务--&gt;"</span> + task.targetId);</span><br><span class="line">           &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">               System.out.println(<span class="string">"处理合成任务--&gt;"</span> + task.targetId);</span><br><span class="line">           &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.[[equalsIgnoreCase]](task.taskType)) &#123;</span><br><span class="line">               System.out.println(<span class="string">"处理起名任务--&gt;"</span> + task.targetId);</span><br><span class="line">           &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">               System.out.println(<span class="string">"处理推送任务--&gt;"</span> + task.targetId);</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               System.out.println(<span class="string">"不合法的任务类型"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>我们反过来从基础篇的设计原则看一下 这样写为什么不好:<br>1.这个方法处理了所有逻辑,对象职责不清晰,调用者和功能提供者之间职责不清晰<br>2.如果这时候业务需求改了增加一个审核的任务类型怎么办,就得改现有代码增加if判断<br>3.具体实现逻辑我只输出了一行,但真实的业务场景的复杂逻辑针对每一种任务都得有很多代码来处理,加一起得写多少代码,一旦重命名任务报错想排查的话怎么搞,想死的心都有了吧  </p>
-<h2 id="改进"><a href="#改进" class="headerlink" title="改进"></a>改进</h2><p>&emsp;&emsp;在代码优化的过程中最基础有效的首先就是<strong><em>单一职责</em></strong>,对象的单一职责和方法的单一职责,第一步先保证一个对象只干一件事:<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">        <span class="comment">//任务处理的过程 可能是代码处理/调用其他系统接口/调用其他类 在这里简单的输出一下方便处理</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">            <span class="keyword">new</span> SplitTaskHandler().handleTask(task.targetId);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">           <span class="keyword">new</span> ComposeTaskHandler().handleTask(task.targetId);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">            <span class="keyword">new</span> RenameTaskHandler().handleTask(task.targetId);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">          <span class="keyword">new</span> PushTaskHandler().handleTask(task.targetId);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"不合法的任务类型"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> &emsp;&emsp;可以看到我针对每种任务类型分别创建一个对象,并且提供一个handleTask方法来进行处理各自的业务逻辑,随便取一个出来看看,不一一列举了:<br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SplitTaskHandler</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleTask</span><span class="params">(String targetId)</span></span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"处理拆条任务--&gt;"</span> + targetId);</span><br><span class="line">            <span class="comment">//真实的处理逻辑 可能有很多行    </span></span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">  </span><br></pre></td></tr></table></figure></p>
-<h2 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h2><p>我们解决了一部分问题,分离了一些职责出去,这时候如果拆条任务处理出错了,我们也很好定位了,直接去对应的类里面找代码就可以了,但是还有一些问题待解决:第一,调用者(Main)直接持有每个任务处理类的对象,这是一种强耦合的关系引用;第二,调用者的职责是调用,现在仍然承担了判断该用哪个Handler的职责;第三,每个Handler都有相同的行为,就是处理任务,我们可以对他们进行更抽象的约束.为了解决这三点问题,我们先来看下简单工厂模式:</p>
-<h2 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h2><p>首先 声明一个接口 用来抽象我们上面创建的handler,定义handlerTask方法来处理任务:<br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TaskHandler</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">handleTask</span><span class="params">(String targetId)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 每个任务的实现类实现该接口,还是拿一个举例:<br>   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SplitTaskHandler</span> <span class="keyword">implements</span> <span class="title">TaskHandler</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleTask</span><span class="params">(String targetId)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"处理拆条任务--&gt;"</span> + targetId);</span><br><span class="line">        <span class="comment">//真实的处理逻辑 可能有很多行</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure></p>
-<p>然后我们创建一个工厂,用来产生TashHandler,工厂的作用就是分离调用者原本的创建Handler的职责,返回值是TaskHandler,这是一个典型的<strong><em>面相接口编程</em></strong>的应用运行时才决定示例化哪个对象 这也就是Java三大特性之一的多态 扯远了看工厂:<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaskHandlerSimpleFactory</span> </span>&#123;</span><br><span class="line">    <span class="comment">//注意返回值是一个接口类型 </span></span><br><span class="line">   <span class="function"><span class="keyword">static</span> TaskHandler <span class="title">create</span><span class="params">(String taskType)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">new</span> SplitTaskHandler();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123; </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ComposeTaskHandler(); </span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">new</span> RenameTaskHandler();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">new</span> PushTaskHandler();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 有了简单工厂我们再看调用者:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">        TaskHandlerSimpleFactory.create(task.taskType).handleTask(task.targetId);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 怎么样 是不是很清晰了</p>
-<h2 id="分析-2"><a href="#分析-2" class="headerlink" title="分析"></a>分析</h2><p>现在再来看看我们引入简单工厂之前那个版本的问题是否得到了解决:</p>
-<ul>
-<li>分离出具体handler职责,每种任务只处理自己的业务逻辑</li>
-<li>分离出工厂职责,专门负责生产任务的handler</li>
-<li>分离出调用者职责,最终形成 调用者-工厂-Handler 的调用关系</li>
-<li>增加一种任务类型的话只需要增加一个被TaskHandler接口约束的类,实现handleTask方法,并通过简单工厂生产即可 不影响调用者和其他Handler<br>有人可能会问了增加任务类型的话不还得修改简单工厂类么,这不违反开放-封闭原则么,Ok 我们来看工厂方法模式<h2 id="工厂方法模式"><a href="#工厂方法模式" class="headerlink" title="工厂方法模式"></a>工厂方法模式</h2>我们想让简单工厂的职责对修改关闭,那我我们只能将工厂进行更进一步的抽象,才能将变化提取出去(慢慢理解啊).第一步,我们抽象出一个工厂接口:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HandlerFactory</span> </span>&#123;</span><br><span class="line">    <span class="function">TaskHandler <span class="title">create</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
-然后让具体的业务工厂去实现这个接口,拿一个举例:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"> <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SplitTaskHandlerFactory</span> <span class="keyword">implements</span> <span class="title">HandlerFactory</span></span>&#123;</span><br><span class="line">     <span class="meta">@Override</span></span><br><span class="line">     <span class="function"><span class="keyword">public</span> TaskHandler <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> SplitTaskHandler();</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
-这时候由于我们抽象了工厂的概念 因此每一个Handler的工厂可以直接生产对应的Handler对象来处理具体的任务,那原来的if判断去哪了,看调用者:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">         <span class="comment">//任务处理的过程 可能是代码处理/调用其他系统接口/调用其他类 在这里简单的输出一下方便处理</span></span><br><span class="line">         <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="keyword">new</span> SplitTaskHandlerFactory().create().handleTask(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="keyword">new</span> ComposeTaskHandlerFactory().create().handleTask(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="keyword">new</span> RenameTaskHandlerFactory().create().handleTask(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="keyword">new</span> PushTaskHandlerFactory().create().handleTask(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">             System.out.println(<span class="string">"不合法的任务类型"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
-<h2 id="分析-3"><a href="#分析-3" class="headerlink" title="分析"></a>分析</h2>看一下我们刚才的问题解决了没有,这个时候你增加一个审核任务类型怎么办,直接创建一个CheckHandlerFactory 通过这个工厂去生产CheckHandler处理具体的任务,有人说不对啊,你增加一种类型不还得改调用者么,加个if……这不也是违反开闭原则么?大哥,你加需求肯定得加判断啊,但是为什么还会产生工厂这种模式呢,Ok下面是自己理解,不保对啊:其实就是一个词 <strong>类的职责</strong>,我们把关注点放在生产Handler这个职责上:简单工厂的职责就是生产handler,增加任务类型Check就得改工厂,不改行不行呢?不行!因为实现不了生产CheckHandler的功能;同样的关注点我们看工厂模式,生产handler这个职责:需要改东西么?不需要!我只需要新建就好了,其他已有的东西都不需要动.所以在生产handler这个职责角度上我们说工厂模式比简单工厂扩展性更强.调用者是另一个角度的问题,反正生产handler的过程我工厂是极好的,handler也生产出来了,你调用者爱调不调呗.我这个模式解决的是 <strong><em>生产</em></strong>这个角度的问题,调用者的变化并不影响生产的过程,因此我们可以理解他是符合开闭原则的.<br>说了一大堆,平时用的最多的还是简单工厂,因为简单.<h2 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h2>这个模式其实用的也比较少,但是既然说工厂了,也不能不提,假想一个应用场景,假设我们需要针对不同的任务类型做日志记录,比如拆条的记录到txt里,打包的记录到mongodb中,推送的不处理,怎么弄呢,有人说直接写到具体handler的handletask方法里不就好了么,对!如有有这种需求的话,大多数情况也是这么干的,为什么呢,因为简单.但是从职责划分的角度上来讲,日志记录我们也可以说属于调用者的职责,具体handler只管处理任务就好,不需要干其他的,对吧.原来我们是一条线,生产taskHandler,这时候我们多了一条线,用来生产logHandler,Ok,我们来看,既然想要生产loghandler 那么就需要抽象出来一个接口:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">LogHandler</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">  <span class="function"><span class="keyword">void</span>  <span class="title">handleLog</span><span class="params">(String targetId)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-然后这个logHandler得通过工厂生产出来啊,所以要扩展一下上面的工厂接口,让它也能生产logHandler,<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HandlerFactory</span> </span>&#123;</span><br><span class="line">      <span class="comment">//生产TaskHandler</span></span><br><span class="line">    <span class="function">TaskHandler <span class="title">createTaskHandler</span><span class="params">()</span></span>;</span><br><span class="line">    </span><br><span class="line">      <span class="comment">//生产LogHandler</span></span><br><span class="line">    <span class="function">LogHandler <span class="title">createLogandler</span><span class="params">()</span></span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-具体实现,还拿拆条任务举例:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SplitHandlerFactory</span> <span class="keyword">implements</span> <span class="title">HandlerFactory</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TaskHandler <span class="title">createTaskHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SplitTaskHandler();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> LogHandler <span class="title">createLogandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SplitLogHandler();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-Ok,现在我们的工厂有了两条生产线,可以生产taskHandler和logHandler,调用者该怎么做很明显了吧:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">         <span class="comment">//任务处理的过程 可能是代码处理/调用其他系统接口/调用其他类 在这里简单的输出一下方便处理</span></span><br><span class="line">         <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="comment">//看这里 一个factory生产了两条线</span></span><br><span class="line">             HandlerFactory hf =   <span class="keyword">new</span> SplitHandlerFactory();</span><br><span class="line">             hf.createTaskHandler().handleTask(task.targetId);</span><br><span class="line">             hf.createLogandler().handlerLog(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">             System.out.println(<span class="string">"不合法的任务类型"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="分析-4"><a href="#分析-4" class="headerlink" title="分析"></a>分析</h2>其实对于实现上来讲 就是扩展了一下HandlerFactory接口,加了个方法,跟以前没啥区别,但是整个的设计思想实际上是有一个更深的抽象,因此叫抽象工厂(个人理解)<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>设计模式第一篇,总结了一个工作中常用的工厂模式,举了一个实际工作中的例子作为参考.模式类图网上有的是,可以随便找一个看看,可以加深理论上的理解,其实所有的设计模式思想都是相通的,高内聚,低耦合,面相接口编程,单一职责.用到工厂的情况还有很多种,比如处理不同的数据,翻译不同的参数关键一点就是抽象出要生产的Product,其他的问题就套模式就好了.OK,这篇文章就这样,有问题加我微信.</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <div>
-  
-</div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/11/设计模式-单例/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -930,7 +720,7 @@ Ok,现在我们的工厂有了两条生产线,可以生产taskHandler和logHandl
                 
               
 
-              <time title="创建时间：2019-04-11 16:28:56" itemprop="dateCreated datePublished" datetime="2019-04-11T16:28:56+08:00">2019-04-11</time>
+              <time title="创建时间：2019-04-11 20:28:56" itemprop="dateCreated datePublished" datetime="2019-04-11T20:28:56+08:00">2019-04-11</time>
             
 
             
@@ -947,7 +737,7 @@ Ok,现在我们的工厂有了两条生产线,可以生产taskHandler和logHandl
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-04-16 11:54:02" itemprop="dateModified" datetime="2019-04-16T11:54:02+08:00">2019-04-16</time>
+                <time title="修改时间：2019-04-17 14:12:02" itemprop="dateModified" datetime="2019-04-17T14:12:02+08:00">2019-04-17</time>
               
             
           </span>
@@ -1583,6 +1373,389 @@ AB两个线程同时进入if判断,假设A获得锁之后进入第二个if判断
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/25/设计模式-工厂/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/25/设计模式-工厂/" class="post-title-link" itemprop="url">设计模式-工厂</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-25 16:29:40" itemprop="dateCreated datePublished" datetime="2019-03-25T16:29:40+08:00">2019-03-25</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-04-17 14:11:42" itemprop="dateModified" datetime="2019-04-17T14:11:42+08:00">2019-04-17</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>&emsp;&emsp;工厂是干嘛的,生产东西的呗,生产东西干什么,用呗.这个逻辑平移到编码领域,更确切的说OO编码,工厂是用来干嘛的,生产对象的,生产对象干什么,实现特定的功能,为什么对象不直接New要通过工厂生产–Ok,举个例子看一下.<br>&emsp;&emsp;你看到一个视频微博“2019年常规赛詹姆斯精彩镜头”,你知道怎么来的么?实际上背后有一个视频剪辑平台,视频编辑把一个个的镜头挑出来-&gt;剪成一个个小段-&gt;拼接-&gt;给视频起名字-&gt;推送到新浪微博.这些过程抽象一下实际上就是一个个的任务,比如我们设计一个任务表来存这些任务 任务类型分别叫 SPLIT(剪辑)-&gt;COMPOSE(拼接)-&gt;RENAME(起名字)-&gt;PUSH(推送) 编辑们干活的时候数据库产生很多条任务记录需要处理 这些任务分属于不同任务类型 这时候来吧 写代码处理一下这些任务吧</p>
+<h2 id="处理"><a href="#处理" class="headerlink" title="处理"></a>处理</h2><p>刚上来可能这么处理,下面这个taskList模拟从数据库取出来的任务列表:</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestPattern</span> </span>&#123;</span><br><span class="line">   <span class="comment">//模拟任务类</span></span><br><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">Task</span> </span>&#123;</span><br><span class="line">       <span class="comment">//任务类型</span></span><br><span class="line">       String taskType;</span><br><span class="line">       <span class="comment">//视频Id</span></span><br><span class="line">       String targetId;</span><br><span class="line">       Task(String taskType, String targetId) &#123;</span><br><span class="line">           <span class="keyword">this</span>.taskType = taskType;</span><br><span class="line">           <span class="keyword">this</span>.targetId = targetId;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//*********准备数据开始********</span></span><br><span class="line">       List&lt;Task&gt; taskList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">       TestPattern tp = <span class="keyword">new</span> TestPattern();</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"SPLIT"</span>, <span class="string">"111"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"COMPOSE"</span>, <span class="string">"222"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"RENAME"</span>, <span class="string">"111"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"TEST"</span>, <span class="string">"111"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"PUSH"</span>, <span class="string">"222"</span>));</span><br><span class="line">       taskList.add(tp.new Task(<span class="string">"PUSH"</span>, <span class="string">"333"</span>));</span><br><span class="line">       <span class="comment">//********准备数据结束 下面是核心代码*********</span></span><br><span class="line">       <span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">           <span class="comment">//任务处理的过程 可能是代码处理/调用其他系统接口/调用其他类 在这里简单的输出一下方便处理</span></span><br><span class="line">           <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">               System.out.println(<span class="string">"处理拆条任务--&gt;"</span> + task.targetId);</span><br><span class="line">           &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">               System.out.println(<span class="string">"处理合成任务--&gt;"</span> + task.targetId);</span><br><span class="line">           &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.[[equalsIgnoreCase]](task.taskType)) &#123;</span><br><span class="line">               System.out.println(<span class="string">"处理起名任务--&gt;"</span> + task.targetId);</span><br><span class="line">           &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">               System.out.println(<span class="string">"处理推送任务--&gt;"</span> + task.targetId);</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               System.out.println(<span class="string">"不合法的任务类型"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>我们反过来从基础篇的设计原则看一下 这样写为什么不好:<br>1.这个方法处理了所有逻辑,对象职责不清晰,调用者和功能提供者之间职责不清晰<br>2.如果这时候业务需求改了增加一个审核的任务类型怎么办,就得改现有代码增加if判断<br>3.具体实现逻辑我只输出了一行,但真实的业务场景的复杂逻辑针对每一种任务都得有很多代码来处理,加一起得写多少代码,一旦重命名任务报错想排查的话怎么搞,想死的心都有了吧  </p>
+<h2 id="改进"><a href="#改进" class="headerlink" title="改进"></a>改进</h2><p>&emsp;&emsp;在代码优化的过程中最基础有效的首先就是<strong><em>单一职责</em></strong>,对象的单一职责和方法的单一职责,第一步先保证一个对象只干一件事:<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">        <span class="comment">//任务处理的过程 可能是代码处理/调用其他系统接口/调用其他类 在这里简单的输出一下方便处理</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">            <span class="keyword">new</span> SplitTaskHandler().handleTask(task.targetId);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">           <span class="keyword">new</span> ComposeTaskHandler().handleTask(task.targetId);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">            <span class="keyword">new</span> RenameTaskHandler().handleTask(task.targetId);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">          <span class="keyword">new</span> PushTaskHandler().handleTask(task.targetId);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"不合法的任务类型"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> &emsp;&emsp;可以看到我针对每种任务类型分别创建一个对象,并且提供一个handleTask方法来进行处理各自的业务逻辑,随便取一个出来看看,不一一列举了:<br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SplitTaskHandler</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleTask</span><span class="params">(String targetId)</span></span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"处理拆条任务--&gt;"</span> + targetId);</span><br><span class="line">            <span class="comment">//真实的处理逻辑 可能有很多行    </span></span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">  </span><br></pre></td></tr></table></figure></p>
+<h2 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h2><p>我们解决了一部分问题,分离了一些职责出去,这时候如果拆条任务处理出错了,我们也很好定位了,直接去对应的类里面找代码就可以了,但是还有一些问题待解决:第一,调用者(Main)直接持有每个任务处理类的对象,这是一种强耦合的关系引用;第二,调用者的职责是调用,现在仍然承担了判断该用哪个Handler的职责;第三,每个Handler都有相同的行为,就是处理任务,我们可以对他们进行更抽象的约束.为了解决这三点问题,我们先来看下简单工厂模式:</p>
+<h2 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h2><p>首先 声明一个接口 用来抽象我们上面创建的handler,定义handlerTask方法来处理任务:<br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TaskHandler</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">handleTask</span><span class="params">(String targetId)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 每个任务的实现类实现该接口,还是拿一个举例:<br>   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SplitTaskHandler</span> <span class="keyword">implements</span> <span class="title">TaskHandler</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleTask</span><span class="params">(String targetId)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"处理拆条任务--&gt;"</span> + targetId);</span><br><span class="line">        <span class="comment">//真实的处理逻辑 可能有很多行</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure></p>
+<p>然后我们创建一个工厂,用来产生TashHandler,工厂的作用就是分离调用者原本的创建Handler的职责,返回值是TaskHandler,这是一个典型的<strong><em>面相接口编程</em></strong>的应用运行时才决定示例化哪个对象 这也就是Java三大特性之一的多态 扯远了看工厂:<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaskHandlerSimpleFactory</span> </span>&#123;</span><br><span class="line">    <span class="comment">//注意返回值是一个接口类型 </span></span><br><span class="line">   <span class="function"><span class="keyword">static</span> TaskHandler <span class="title">create</span><span class="params">(String taskType)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">new</span> SplitTaskHandler();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123; </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ComposeTaskHandler(); </span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">new</span> RenameTaskHandler();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">new</span> PushTaskHandler();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 有了简单工厂我们再看调用者:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">        TaskHandlerSimpleFactory.create(task.taskType).handleTask(task.targetId);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 怎么样 是不是很清晰了</p>
+<h2 id="分析-2"><a href="#分析-2" class="headerlink" title="分析"></a>分析</h2><p>现在再来看看我们引入简单工厂之前那个版本的问题是否得到了解决:</p>
+<ul>
+<li>分离出具体handler职责,每种任务只处理自己的业务逻辑</li>
+<li>分离出工厂职责,专门负责生产任务的handler</li>
+<li>分离出调用者职责,最终形成 调用者-工厂-Handler 的调用关系</li>
+<li>增加一种任务类型的话只需要增加一个被TaskHandler接口约束的类,实现handleTask方法,并通过简单工厂生产即可 不影响调用者和其他Handler<br>有人可能会问了增加任务类型的话不还得修改简单工厂类么,这不违反开放-封闭原则么,Ok 我们来看工厂方法模式<h2 id="工厂方法模式"><a href="#工厂方法模式" class="headerlink" title="工厂方法模式"></a>工厂方法模式</h2>我们想让简单工厂的职责对修改关闭,那我我们只能将工厂进行更进一步的抽象,才能将变化提取出去(慢慢理解啊).第一步,我们抽象出一个工厂接口:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HandlerFactory</span> </span>&#123;</span><br><span class="line">    <span class="function">TaskHandler <span class="title">create</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+然后让具体的业务工厂去实现这个接口,拿一个举例:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"> <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SplitTaskHandlerFactory</span> <span class="keyword">implements</span> <span class="title">HandlerFactory</span></span>&#123;</span><br><span class="line">     <span class="meta">@Override</span></span><br><span class="line">     <span class="function"><span class="keyword">public</span> TaskHandler <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> SplitTaskHandler();</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+这时候由于我们抽象了工厂的概念 因此每一个Handler的工厂可以直接生产对应的Handler对象来处理具体的任务,那原来的if判断去哪了,看调用者:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">         <span class="comment">//任务处理的过程 可能是代码处理/调用其他系统接口/调用其他类 在这里简单的输出一下方便处理</span></span><br><span class="line">         <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="keyword">new</span> SplitTaskHandlerFactory().create().handleTask(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="keyword">new</span> ComposeTaskHandlerFactory().create().handleTask(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="keyword">new</span> RenameTaskHandlerFactory().create().handleTask(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="keyword">new</span> PushTaskHandlerFactory().create().handleTask(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">             System.out.println(<span class="string">"不合法的任务类型"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+<h2 id="分析-3"><a href="#分析-3" class="headerlink" title="分析"></a>分析</h2>看一下我们刚才的问题解决了没有,这个时候你增加一个审核任务类型怎么办,直接创建一个CheckHandlerFactory 通过这个工厂去生产CheckHandler处理具体的任务,有人说不对啊,你增加一种类型不还得改调用者么,加个if……这不也是违反开闭原则么?大哥,你加需求肯定得加判断啊,但是为什么还会产生工厂这种模式呢,Ok下面是自己理解,不保对啊:其实就是一个词 <strong>类的职责</strong>,我们把关注点放在生产Handler这个职责上:简单工厂的职责就是生产handler,增加任务类型Check就得改工厂,不改行不行呢?不行!因为实现不了生产CheckHandler的功能;同样的关注点我们看工厂模式,生产handler这个职责:需要改东西么?不需要!我只需要新建就好了,其他已有的东西都不需要动.所以在生产handler这个职责角度上我们说工厂模式比简单工厂扩展性更强.调用者是另一个角度的问题,反正生产handler的过程我工厂是极好的,handler也生产出来了,你调用者爱调不调呗.我这个模式解决的是 <strong><em>生产</em></strong>这个角度的问题,调用者的变化并不影响生产的过程,因此我们可以理解他是符合开闭原则的.<br>说了一大堆,平时用的最多的还是简单工厂,因为简单.<h2 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h2>这个模式其实用的也比较少,但是既然说工厂了,也不能不提,假想一个应用场景,假设我们需要针对不同的任务类型做日志记录,比如拆条的记录到txt里,打包的记录到mongodb中,推送的不处理,怎么弄呢,有人说直接写到具体handler的handletask方法里不就好了么,对!如有有这种需求的话,大多数情况也是这么干的,为什么呢,因为简单.但是从职责划分的角度上来讲,日志记录我们也可以说属于调用者的职责,具体handler只管处理任务就好,不需要干其他的,对吧.原来我们是一条线,生产taskHandler,这时候我们多了一条线,用来生产logHandler,Ok,我们来看,既然想要生产loghandler 那么就需要抽象出来一个接口:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">LogHandler</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">  <span class="function"><span class="keyword">void</span>  <span class="title">handleLog</span><span class="params">(String targetId)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+然后这个logHandler得通过工厂生产出来啊,所以要扩展一下上面的工厂接口,让它也能生产logHandler,<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HandlerFactory</span> </span>&#123;</span><br><span class="line">      <span class="comment">//生产TaskHandler</span></span><br><span class="line">    <span class="function">TaskHandler <span class="title">createTaskHandler</span><span class="params">()</span></span>;</span><br><span class="line">    </span><br><span class="line">      <span class="comment">//生产LogHandler</span></span><br><span class="line">    <span class="function">LogHandler <span class="title">createLogandler</span><span class="params">()</span></span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+具体实现,还拿拆条任务举例:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SplitHandlerFactory</span> <span class="keyword">implements</span> <span class="title">HandlerFactory</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TaskHandler <span class="title">createTaskHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SplitTaskHandler();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> LogHandler <span class="title">createLogandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SplitLogHandler();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+Ok,现在我们的工厂有了两条生产线,可以生产taskHandler和logHandler,调用者该怎么做很明显了吧:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Task task : taskList) &#123;</span><br><span class="line">         <span class="comment">//任务处理的过程 可能是代码处理/调用其他系统接口/调用其他类 在这里简单的输出一下方便处理</span></span><br><span class="line">         <span class="keyword">if</span> (<span class="string">"SPLIT"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">             <span class="comment">//看这里 一个factory生产了两条线</span></span><br><span class="line">             HandlerFactory hf =   <span class="keyword">new</span> SplitHandlerFactory();</span><br><span class="line">             hf.createTaskHandler().handleTask(task.targetId);</span><br><span class="line">             hf.createLogandler().handlerLog(task.targetId);</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"COMPSE"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"RENAME"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"PUSH"</span>.equalsIgnoreCase(task.taskType)) &#123;</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">             System.out.println(<span class="string">"不合法的任务类型"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="分析-4"><a href="#分析-4" class="headerlink" title="分析"></a>分析</h2>其实对于实现上来讲 就是扩展了一下HandlerFactory接口,加了个方法,跟以前没啥区别,但是整个的设计思想实际上是有一个更深的抽象,因此叫抽象工厂(个人理解)<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>设计模式第一篇,总结了一个工作中常用的工厂模式,举了一个实际工作中的例子作为参考.模式类图网上有的是,可以随便找一个看看,可以加深理论上的理解,其实所有的设计模式思想都是相通的,高内聚,低耦合,面相接口编程,单一职责.用到工厂的情况还有很多种,比如处理不同的数据,翻译不同的参数关键一点就是抽象出要生产的Product,其他的问题就套模式就好了.OK,这篇文章就这样,有问题加我微信.</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/22/设计模式-理论基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/22/设计模式-理论基础/" class="post-title-link" itemprop="url">设计模式-理论基础</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-22 22:10:17" itemprop="dateCreated datePublished" datetime="2019-03-22T22:10:17+08:00">2019-03-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-04-17 14:11:20" itemprop="dateModified" datetime="2019-04-17T14:11:20+08:00">2019-04-17</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>&emsp;&emsp;各种设计模式实际上就是一种前人总结的代码设计的经验之谈,是一种编程的思维方式.运用他们可以帮我们写出简洁可扩展性强的代码.<br>&emsp;&emsp;网上的设计模式的文章大多都是举一两个简单的例子进行解释,但是不可否认 有的时候demo和实际应用场景还有一些距离,虽然明白了原理,但是真到了实际写代码的过程中不知道怎么用.遇到了冗余代码想优化也无从下手.这个设计模式的专题目的就是尽量结合实际项目的应用场景,对常用的设计模式进行举例说明,使得使用者对于各种常用设计模式有着更直观的认识.<br>下面是一些设计原则和方法论,刚开始可能理解的不深,但是熟悉了几个常用的设计模式之后,回头看这些抽象的总结就会发现,所有的设计模式都是这些方法论的具体实践,我们不讲理论,我们只是理论的搬运工:</p>
+<ul>
+<li>单一职责原则  </li>
+<li>开放封闭原则</li>
+<li>里氏替换原则</li>
+<li>依赖倒置原则</li>
+<li>接口隔离原则</li>
+<li>迪米特法则<br>详细的理论解释请参考:<a href="https://www.cnblogs.com/dolphin0520/p/3919839.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3919839.html</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -1625,7 +1798,7 @@ AB两个线程同时进入if判断,假设A获得锁之后进入第二个if判断
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
