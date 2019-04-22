@@ -310,6 +310,175 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/22/设计模式-装饰者/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/04/22/设计模式-装饰者/" class="post-title-link" itemprop="url">设计模式-装饰者</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-22 13:05:28 / 修改时间：17:16:12" itemprop="dateCreated datePublished" datetime="2019-04-22T13:05:28+08:00">2019-04-22</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在面向对象的设计当中,我们认为成员变量是对象的属性,方法是对象的行为,比如我们新建一个Cat类,且实例化一个对象出来,那么颜色/体重/…这些属性我们可以作为成员变量,跑/叫/散步…我们将这些动态行为抽象成方法.如果当前类的设计无法满足需求,我们需要对现有类的行为进行增强,有几种途径:1.直接修改2.继承并重写3.装饰者4.其他 直接修改实际上违反了开闭原则,况且并非所有的时候都可以对源码进行直接修改,继承实际上是获取父类的所有非privage行为,而且java是单继承,这种方式显得不够灵活.装饰者模式实际上就是为了灵活的解决类的行为增强这一类问题.网上博客说的最多的装饰者的应用就是IO流,那么我们就以IO流为例子,解释一下装饰者的应用.</p>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p>比如我们将一段文本写入txt文档当中:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.decorator;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestStream</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String str = <span class="string">"I am a Stream Decorator Test"</span>;</span><br><span class="line">        String filePath = <span class="string">"/Users/yangsimeng/Documents/test/teststream.txt"</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            OutputStream os  = <span class="keyword">new</span> FileOutputStream(filePath) ;</span><br><span class="line">            os.write(str.getBytes());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 当我的文本比较长的时候,不想每次都往硬盘上写,这时候就可以写一部分到内存缓冲区中,缓冲区满了再统一写入硬盘.这种情况实际上就是对原用功能的增强,这时候我们考虑BufferedInputStream:<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.decorator;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestStream</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String str = <span class="string">"I am a Stream Decorator Test"</span>;</span><br><span class="line">        String filePath = <span class="string">"/Users/yangsimeng/Documents/test/teststream.txt"</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            OutputStream os  = <span class="keyword">new</span> BufferedOutputStream(<span class="keyword">new</span> FileOutputStream(filePath)) ;</span><br><span class="line">            os.write(str.getBytes());</span><br><span class="line">            os.flush();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 这么实现相当于在原有的FileOutputStream上包装了一层,对外表现没有变,还是OutputStream,我们先来看一下这几个类的继承关系:<br> <img width="400" src="/2019/04/22/设计模式-装饰者/streamextend.png"><br> 之所以我们能完成包装,是因为这两个类都有一个同样的父类:OutputStream,有同样的行为:write,那我们来看一下BufferedOutputStream是怎么实现增强的:<br> <figure class="highlight java"><figcaption><span>FileOutputStream中的write方法</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(<span class="keyword">int</span> b)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">     write(b, append);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(<span class="keyword">int</span> b, <span class="keyword">boolean</span> append)</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> FileOutputStream中的write方法最简单,直接调用了一个native方法来实现向硬盘上写数据.</p>
+ <figure class="highlight java"><figcaption><span>BufferedOutputStream的write方法</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//构造方法,指定要增强的对象out</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">BufferedOutputStream</span><span class="params">(OutputStream out)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>(out, <span class="number">8192</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//超出缓冲区了,就往硬盘写,否则就往缓冲区加</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(<span class="keyword">int</span> b)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (count &gt;= buf.length) &#123;</span><br><span class="line">          flushBuffer();</span><br><span class="line">      &#125;</span><br><span class="line">      buf[count++] = (<span class="keyword">byte</span>)b;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** Flush the internal buffer */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">flushBuffer</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          out.write(buf, <span class="number">0</span>, count);</span><br><span class="line">          count = <span class="number">0</span>;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+<p> Ok了,通过上面这个例子很容易看到BufferedOutOutputStream是怎么对write过程进行增强的了.先写入初始化好的缓冲区,缓冲区满了统一写入硬盘.如果我们对BufferedOutputStream提供的功能还不满意,我们也可以对它进行增强啊,最简单的例子,比如我们在写之前和之后都进行日志输出,我们可以创建一个LogBufferedOutputStream:<br><figure class="highlight java"><figcaption><span>日志增强的输出流类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.decorator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FilterOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogBuffedOutputStream</span> <span class="keyword">extends</span> <span class="title">FilterOutputStream</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">boolean</span> needLog = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LogBuffedOutputStream</span><span class="params">(OutputStream out)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(out);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LogBuffedOutputStream</span><span class="params">(OutputStream out,<span class="keyword">boolean</span> needLog)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(out);</span><br><span class="line">        <span class="keyword">this</span>.needLog=needLog;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(<span class="keyword">byte</span> [] bytes)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(needLog)&#123;</span><br><span class="line">            System.out.println(<span class="string">"**********开始写数据******************"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        out.write(bytes);</span><br><span class="line">        <span class="keyword">if</span>(needLog)&#123;</span><br><span class="line">            System.out.println(<span class="string">"**********写完啦******************"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实装饰者和责任链在实现上有些类似,责任链是职责划分,装饰者是对原有对象功能的增强,理解精神即可.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/18/设计模式-责任链/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2004,7 +2173,7 @@ Ok,现在我们的工厂有了两条生产线,可以生产taskHandler和logHandl
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
