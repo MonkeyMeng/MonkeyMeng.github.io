@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="应用场景责任链模式,从名字也可以看出来,责任的链条,突出的两个特点:职责的分离与动态组合.比如我们请假的审批流,从下到上每个领导都会对请求进行处理(通过或驳回),因为各个领导的职责是分离的,这时候我们在整个链条上进行增加或拆解也会变得很容易.再比如在讲模板方法模式的时候提到的鉴权的应用场景,也可以用责任链来处理.重新看一下场景:假设现在我们要处理一个用户的登录请求,需要对用户进行身份校验-&amp;gt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式-责任链">
+<meta property="og:url" content="http://yoursite.com/2019/04/18/设计模式-责任链/index.html">
+<meta property="og:site_name" content="狂暴的小猴儿">
+<meta property="og:description" content="应用场景责任链模式,从名字也可以看出来,责任的链条,突出的两个特点:职责的分离与动态组合.比如我们请假的审批流,从下到上每个领导都会对请求进行处理(通过或驳回),因为各个领导的职责是分离的,这时候我们在整个链条上进行增加或拆解也会变得很容易.再比如在讲模板方法模式的时候提到的鉴权的应用场景,也可以用责任链来处理.重新看一下场景:假设现在我们要处理一个用户的登录请求,需要对用户进行身份校验-&amp;gt;">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/04/18/设计模式-责任链/chainresult.png">
+<meta property="og:updated_time" content="2019-04-22T04:47:18.662Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式-责任链">
+<meta name="twitter:description" content="应用场景责任链模式,从名字也可以看出来,责任的链条,突出的两个特点:职责的分离与动态组合.比如我们请假的审批流,从下到上每个领导都会对请求进行处理(通过或驳回),因为各个领导的职责是分离的,这时候我们在整个链条上进行增加或拆解也会变得很容易.再比如在讲模板方法模式的时候提到的鉴权的应用场景,也可以用责任链来处理.重新看一下场景:假设现在我们要处理一个用户的登录请求,需要对用户进行身份校验-&amp;gt;">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/18/设计模式-责任链/chainresult.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2019/04/18/设计模式-责任链/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>设计模式-责任链 | 狂暴的小猴儿</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">狂暴的小猴儿</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">CrazyMonkey</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/18/设计模式-责任链/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">设计模式-责任链
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-18 20:10:02" itemprop="dateCreated datePublished" datetime="2019-04-18T20:10:02+08:00">2019-04-18</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-04-22 12:47:18" itemprop="dateModified" datetime="2019-04-22T12:47:18+08:00">2019-04-22</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>责任链模式,从名字也可以看出来,责任的链条,突出的两个特点:职责的<strong>分离</strong>与<strong>动态组合</strong>.比如我们请假的审批流,从下到上每个领导都会对请求进行处理(通过或驳回),因为各个领导的职责是分离的,这时候我们在整个链条上进行增加或拆解也会变得很容易.再比如在讲模板方法模式的时候提到的鉴权的应用场景,也可以用责任链来处理.重新看一下场景:假设现在我们要处理一个用户的登录请求,需要对用户进行身份校验-&gt;url地址校验-&gt;用户权限校验三步,校验成功的才可以访问到业务接口.Ok,现在我们用责任链的思想来实现一下这个应用场景.</p>
+<h2 id="实现1"><a href="#实现1" class="headerlink" title="实现1"></a>实现1</h2><p>首先我们需要一个请求类,这个类是我们整个责任链处理的对象:<br> <figure class="highlight java"><figcaption><span>模拟请求类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain;</span><br><span class="line"></span><br><span class="line"><span class="comment">//模拟请求类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Request</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String userId;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String requestUrl;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Request</span><span class="params">(String userId, String requestUrl)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userId = userId;</span><br><span class="line">        <span class="keyword">this</span>.requestUrl = requestUrl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getUserId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUserId</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userId = userId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getRequestUrl</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> requestUrl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setRequestUrl</span><span class="params">(String requestUrl)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.requestUrl = requestUrl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br>然后将职责的处理类进行抽象:<br> <figure class="highlight java"><figcaption><span>抽象的处理节点</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain;</span><br><span class="line"></span><br><span class="line"><span class="comment">//鉴权接口的抽象</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//持有后继节点的引用</span></span><br><span class="line">    <span class="keyword">protected</span> AuthHandler next;</span><br><span class="line"></span><br><span class="line">    AuthHandler(AuthHandler next)&#123;</span><br><span class="line">        <span class="keyword">this</span>.next=next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//鉴权接口</span></span><br><span class="line">    <span class="function"><span class="keyword">abstract</span>  <span class="keyword">boolean</span> <span class="title">isLegal</span><span class="params">(Request request)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>责任链上的所有节点都有一致的鉴权行为,只不过每个节点的鉴权方式不一样,<strong>行为一致,方式不同</strong>这也是所有设计模式通用的应用场景.扯远了,来看一下具体的鉴权实现类:</p>
+<figure class="highlight java"><figcaption><span>用户合法性校验节点</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain;</span><br><span class="line"><span class="comment">//校验用户是否合法</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserLegalHandler</span> <span class="keyword">extends</span>  <span class="title">AuthHandler</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserLegalHandler</span><span class="params">(AuthHandler next)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(next);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isLegal</span><span class="params">(Request request)</span>  </span>&#123;</span><br><span class="line">        <span class="keyword">boolean</span> isUserLegal = <span class="keyword">false</span>;</span><br><span class="line">        System.out.println(<span class="string">"实现自己的用户鉴权逻辑 "</span>);</span><br><span class="line">        isUserLegal=<span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">return</span> isUserLegal?(<span class="keyword">this</span>.next==<span class="keyword">null</span>?isUserLegal:next.isLegal(request)):isUserLegal;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+ <figure class="highlight java"><figcaption><span>URL合法性校验节点</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UrlLegalHandler</span> <span class="keyword">extends</span> <span class="title">AuthHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UrlLegalHandler</span><span class="params">(AuthHandler next)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(next);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isLegal</span><span class="params">(Request request)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Url合法性校验"</span>);</span><br><span class="line">        <span class="keyword">boolean</span> isUrlLeagal = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">return</span> isUrlLeagal?(<span class="keyword">this</span>.next==<span class="keyword">null</span>?isUrlLeagal:next.isLegal(request)):isUrlLeagal;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>用户权限合法性校验节点</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserAuthenticatedHandler</span> <span class="keyword">extends</span> <span class="title">AuthHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserAuthenticatedHandler</span><span class="params">(AuthHandler next)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(next);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isLegal</span><span class="params">(Request request)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">" 用户权限合法性校验"</span>);</span><br><span class="line">        <span class="keyword">boolean</span> isLeagal = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">return</span> isLeagal ? (<span class="keyword">this</span>.next == <span class="keyword">null</span> ? isLeagal : next.isLegal(request)) : isLeagal;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到,我们将鉴权的三个步骤分离到三个类中,三个类拥有共同的行为,并且构造的时候就获得了一个后继的引用,next就像指针一样,指向下一个节点,这样一个个的节点就向链条一样穿起来了,我们看下调用的方式:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestChain</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">boolean</span> isAuth = <span class="keyword">new</span> UserLegalHandler(<span class="keyword">new</span> UrlLegalHandler(<span class="keyword">new</span> UserAuthenticatedHandler(<span class="keyword">null</span>))).isLegal(<span class="keyword">new</span> Request(<span class="string">"111"</span>,<span class="string">"222"</span>));</span><br><span class="line">        System.out.println(<span class="string">"鉴权结果："</span>+isAuth);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>看下结果:<br><img src="/2019/04/18/设计模式-责任链/chainresult.png"></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>再回到我们文章开头提到的两个关键词<strong>职责分离</strong>,<strong>动态组合</strong>,假如这时候我们想在Url校验节点的后面增加签名校验怎么办呢?创建一个SignatureCheckHandler类继承AuthHandler,实现签名校验逻辑,然后在调用的时候把这个对象加到UrlLegalHandler后面即可,对现有的功能不造成影响.</p>
+<h2 id="实现2"><a href="#实现2" class="headerlink" title="实现2"></a>实现2</h2><p>我们现在已经了解了责任链的基本思想和用法,上面那种实现可以解决责任链相对固定的应用场景,因为我们是在代码中手动指定的后继节点.那么我们思考一下,能不能通过配置文件的方式来配置各个节点,并且使责任链的应用场景不局限于鉴权呢?答案当然是可以的,我们来看下实现:<br>首先我们定一个责任链类,用来控制整个责任链的职责流转,这个责任链缓存了该链条上的所有节点<br><figure class="highlight java"><figcaption><span>责任链类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.chain.Request;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Chain</span> </span>&#123;</span><br><span class="line">    <span class="comment">//游标 用来标识当前处于哪个节点</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> cursor;</span><br><span class="line">    <span class="comment">//存储所有的节点</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;Handler&gt; handlers=<span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addHandler</span><span class="params">(Handler handler)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.handlers.add(handler);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">execute</span><span class="params">(Request request)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(cursor&lt;handlers.size())&#123;</span><br><span class="line">           <span class="keyword">return</span> handlers.get(cursor++) .handle(request,<span class="keyword">this</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"责任链执行完毕。。。"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure></p>
+<p>链条中存储的Handler接口很简单,只有一个handle方法<br><figure class="highlight java"><figcaption><span>Handler抽象</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.chain.Request;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 所有责任节点的接口</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">handle</span><span class="params">(Request request,Chain chain)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure></p>
+<p>OK,现在我们可以定义具体的handler了:</p>
+<figure class="highlight java"><figcaption><span>用户合法性校验Handler</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.chain.Request;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserLegalHandler</span>  <span class="keyword">implements</span> <span class="title">Handler</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handle</span><span class="params">(Request request, Chain chain)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"用户鉴权逻辑"</span>);</span><br><span class="line">        <span class="keyword">boolean</span> isLegal = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">if</span>(isLegal)&#123;</span><br><span class="line">            <span class="keyword">return</span>  chain.execute(request);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>URL合法性校验Handler</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.chain.Request;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UrlLegalHandler</span> <span class="keyword">implements</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handle</span><span class="params">(Request request, Chain chain)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"URL合法性校验"</span>);</span><br><span class="line">        <span class="keyword">boolean</span> isLegal = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">if</span>(isLegal)&#123;</span><br><span class="line">            <span class="keyword">return</span>  chain.execute(request);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>用户权限合法性校验Handler</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.chain.Request;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserAuthenticatedHandler</span> <span class="keyword">implements</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handle</span><span class="params">(Request request, Chain chain)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"用户权限合法性校验"</span>);</span><br><span class="line">        <span class="keyword">boolean</span> isLegal = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">if</span>(isLegal)&#123;</span><br><span class="line">            <span class="keyword">return</span>  chain.execute(request);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>调用者</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.chain2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.chain.Request;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestChain</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Chain chain = <span class="keyword">new</span> Chain();</span><br><span class="line">        chain.addHandler(<span class="keyword">new</span> UserLegalHandler());</span><br><span class="line">        chain.addHandler(<span class="keyword">new</span> UrlLegalHandler());</span><br><span class="line">        chain.addHandler(<span class="keyword">new</span> UserAuthenticatedHandler());</span><br><span class="line">        System.out.println(<span class="string">"鉴权结果："</span>+chain.execute(<span class="keyword">new</span> Request(<span class="string">"111"</span>,<span class="string">"222"</span>))); ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h2><p>运行结果就不贴了.经过上面的过程,和实现1相比,我们已经不需要为具体的handler实现类指定next节点了,从这个角度上讲我们已经实现了责任链的创建和具体的handler的分离,现在如果想要改成配置文件的方式就很简单了吧,我们可以自己定义数据格式,自己解析,通过反射机制来生成对象.嗯?这个模式好像有些眼熟….java web里面的filter就是这么搞的吧,我们在web.xml里定义filter节点,在访问servlet的时候,就可以经过我们定义好的FilterChain进行过滤.我们这个例子就是对filter的实现原理略加改造得到的,有兴趣的同学可以自己看一下filterchain的源码研究一下.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我们举了两个例子来说明责任链这种设计模式,归根到底,也是为了实现职责分离和松耦合的代码组织方式,实现一里为什么不同的节点可以以next形式串联起来,因为next类型是抽象类,而不是具体类.这还是面向抽象编程实现高可扩展性的一种实践.</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+    <div>
+    
+        <div style="text-align:center"><image width="200px" src="/images/wechataccount.jpg"></image></div>
+    
+</div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/17/设计模式-模板/" rel="next" title="设计模式-模板">
+                <i class="fa fa-chevron-left"></i> 设计模式-模板
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CrazyMonkey</p>
+              <div class="site-description motion-element" itemprop="description">想起啥来写点啥</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">1.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现1"><span class="nav-number">2.</span> <span class="nav-text">实现1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">3.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现2"><span class="nav-number">4.</span> <span class="nav-text">实现2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析-1"><span class="nav-number">5.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CrazyMonkey</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+   <!-- 代码块复制功能 -->
+  <script type="text/javascript" src="/js/src/clipboard.min.js"></script>  
+  <script type="text/javascript" src="/js/src/clipboard-use.js"></script>
+</body>
+</html>
