@@ -310,6 +310,208 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/22/设计模式-代理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/04/22/设计模式-代理/" class="post-title-link" itemprop="url">设计模式-代理</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-22 22:18:40" itemprop="dateCreated datePublished" datetime="2019-04-22T22:18:40+08:00">2019-04-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-04-25 13:09:03" itemprop="dateModified" datetime="2019-04-25T13:09:03+08:00">2019-04-25</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="写在前头"><a href="#写在前头" class="headerlink" title="写在前头"></a>写在前头</h2><p>这篇文章主要介绍代理模式,代理无论在生活中还是代码世界的应用都非常广泛,你点外卖,外卖小哥就是你的代理;去医院挂不着专家号,黄牛就是你的代理;做开发在调试不方便的时候经常要抓包,抓包工具就是你的代理…当我们不方便暴露自己的时候,我们可以<strong>委托</strong>代理类来达到我们的目的,同时如果有需要的话,代理类还可以<strong>增强</strong>我们的功能呢.举个例子,比如我们现在需要对所有service层的方法进行耗时统计,并汇总到日志监控模块,日志监控模块筛选出耗时长的方法,以短信或者邮件的方式通知开发负责人.</p>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p>OK,针对上面的需求,我们进行实现,有人说,打印时间么,超简单:<br> <figure class="highlight java"><figcaption><span>给方法打印执行时间</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Target</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">            <span class="keyword">long</span> begin = System.currentTimeMillis();</span><br><span class="line">            System.out.println(<span class="string">"开始执行方法-&gt;main:"</span>+begin);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">"具体方法逻辑。。。"</span>);</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">                System.out.println(<span class="string">"执行方法结束-&gt;main:"</span>+end);</span><br><span class="line">                System.out.println(<span class="string">"耗时(ms)："</span>+(end-begin));</span><br><span class="line">                <span class="keyword">if</span>((end-begin)&gt;<span class="number">500</span>)&#123;</span><br><span class="line">                    System.out.println(<span class="string">"方法执行太慢，发送http请求到日志监控模块"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure><br> 结果:<br> <img src="/2019/04/22/设计模式-代理/proxybegin.png"><br>需求实现了,美滋滋啊.快乐是暂时的,痛苦是长久的.肉眼可见的弊端:1.一个类可以这么加,一百个类呢;2.原本方法的代码逻辑被淹没在一堆日志打印的逻辑中,如果出问题了不好排查;3.如果日志逻辑有变动,比如在打印的时候想把参数带上,这个时候假设已经修改了100个类,那是否还需要把他们再重新改一次呢.其实纠其根本,就是职责混乱.这个方法的职责就是干他原本的活,我们应该把打印日志的职责分离出来.<br>有人说用装饰者啊,对原来的方法进行增强,增加日志打印的功能.OK,没毛病,我们可以建立一个TargetDecorator,对test方法进行增强.但是我们今天讲的是代理,那我我们用代理模式实现一下:<br><figure class="highlight java"><figcaption><span>代理对象</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TargetProxy</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Target target = <span class="keyword">new</span> Target();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">long</span> begin = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"开始执行方法-&gt;main:"</span>+begin);</span><br><span class="line">        <span class="comment">//代理对象的实际业务方法</span></span><br><span class="line">        target.test();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"执行方法结束-&gt;main:"</span>+end);</span><br><span class="line">        System.out.println(<span class="string">"耗时(ms)："</span>+(end-begin));</span><br><span class="line">        <span class="keyword">if</span>((end-begin)&gt;<span class="number">500</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"方法执行太慢，发送http请求到日志监控模块"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><figcaption><span>调用者</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"><span class="comment">//        new Target().test();</span></span><br><span class="line">        <span class="keyword">new</span> TargetProxy().test();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>这是一个最简单的代理类,TargetProxy将Target的test方法完全包裹住,使得Target类对调用者来讲是不可见的.个人认为这也是装饰者和代理的最大的区别,<strong>装饰者强调功能的增强,代理强调功能的委托</strong>.<br>再回到这个例子当中,这种简单的代理实际上并不能适用于我们的应用场景:</p>
+<ul>
+<li>Target类和代理类并没有实现统一接口,二者对外表现是不同的,没有做到面向接口编程;</li>
+<li>如果我们有100个类要处理,那么我们就得生成100个代理类,虽然这些代理类功能都是相同的;<br>我们的需求就是在访问这100个类的方法的时候都统计一下时间,而且需要保证代码的简洁和可扩展性:动态代理了解一下.</li>
+</ul>
+<h2 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h2><p>动态代理的两种方式:JDK/cglib</p>
+<h3 id="JDK动态代理"><a href="#JDK动态代理" class="headerlink" title="JDK动态代理"></a>JDK动态代理</h3><p>首先我们需要一个业务逻辑的处理类,将计时功能封装:</p>
+<figure class="highlight java"><figcaption><span>业务处理类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MethodTimeProxyHandler</span>&lt;<span class="title">T</span>&gt;   <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    T target;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MethodTimeProxyHandler</span><span class="params">(T target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.target = target;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> begin = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"开始执行方法-&gt;main:"</span>+begin);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//被代理的方法</span></span><br><span class="line">        Object result =  method.invoke(target,args);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"执行方法结束-&gt;main:"</span>+end);</span><br><span class="line">        System.out.println(<span class="string">"耗时(ms)："</span>+(end-begin));</span><br><span class="line">        <span class="keyword">if</span>((end-begin)&gt;<span class="number">500</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"方法执行太慢，发送http请求到日志监控模块"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>target是被代理类,这个handler的主要功能就是拿到被代理类的对象,然后通过反射,触发被代理类的被代理方法,看下调用者</p>
+<figure class="highlight java"><figcaption><span>调用者</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建一个实例对象，这个对象是被代理的对象</span></span><br><span class="line">        Target target = <span class="keyword">new</span> Target();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建一个与代理对象相关联的InvocationHandler</span></span><br><span class="line">        InvocationHandler targetHandler = <span class="keyword">new</span> MethodTimeProxyHandler&lt;Target&gt;(target);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建一个代理对象targetProxy</span></span><br><span class="line">        TargetInter targetProxy = (TargetInter) Proxy.newProxyInstance(TargetInter.class.getClassLoader(), <span class="keyword">new</span> Class&lt;?&gt;[]&#123;TargetInter.class&#125;, targetHandler);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//代理执行目标方法</span></span><br><span class="line">        targetProxy.test();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h3><p>关键的代码就是我们通过Proxy.newProxyInstance方法动态的创建了一个代理对象,并且代理对象和目标对象具有相同的行为.这样做的好处就是我们只需要把日志处理逻辑封装到统一handler中,然后通过Proxy针对不同的接口,生成不同的代理对象,传入相同的handler.这时假如我们有100个类需要处理,那么我们可以针对他们创建100个代理对象来执行同一段逻辑.之所以称之为动态代理,是因为代理对象是动态生成的,而不像静态代理或者装饰者模式一样在编译期指定.</p>
+<h3 id="CGLIB动态代理"><a href="#CGLIB动态代理" class="headerlink" title="CGLIB动态代理"></a>CGLIB动态代理</h3><p>CGLIB实际上是通过修改字节码的方式来实现代理.首先我们先倒入cglib包 <strong><a href="cglib-nodep-3.2.5.jar">点我获取jar包</a></strong><br>后续操作和JDK的handler类似:<br><figure class="highlight java"><figcaption><span>handler类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.cglib;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> net.sf.cglib.proxy.MethodInterceptor;</span><br><span class="line"><span class="keyword">import</span> net.sf.cglib.proxy.MethodProxy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CglibHandler</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">MethodInterceptor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    T target;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CglibHandler</span><span class="params">(T target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.target = target;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">intercept</span><span class="params">(Object o, Method method, Object[] objects, MethodProxy methodProxy)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">long</span> begin = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"开始执行方法-&gt;main:"</span> + begin);</span><br><span class="line"></span><br><span class="line">        Object result = methodProxy.invoke(target, objects);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"执行方法结束-&gt;main:"</span> + end);</span><br><span class="line">        System.out.println(<span class="string">"耗时(ms)："</span> + (end - begin));</span><br><span class="line">        <span class="keyword">if</span> ((end - begin) &gt; <span class="number">500</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"方法执行太慢，发送http请求到日志监控模块"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><figcaption><span>调用者类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.cglib;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.proxy.Target;</span><br><span class="line"><span class="keyword">import</span> net.sf.cglib.proxy.Enhancer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Enhancer enhancer = <span class="keyword">new</span> Enhancer();</span><br><span class="line">        <span class="comment">//回调方法</span></span><br><span class="line">        enhancer.setCallback(<span class="keyword">new</span> CglibHandler&lt;Target&gt;(<span class="keyword">new</span> Target()));</span><br><span class="line">        <span class="comment">//设置生成类的父类类型</span></span><br><span class="line">        enhancer.setSuperclass(Target.class);</span><br><span class="line">        <span class="comment">//动态生成字节码并返回代理对象</span></span><br><span class="line">        ((Target) enhancer.create()).test();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到,cglib的方式并不需要代理类和被代理类实现相同的接口.</p>
+<h2 id="代理模式与AOP"><a href="#代理模式与AOP" class="headerlink" title="代理模式与AOP"></a>代理模式与AOP</h2><p>AOP(Aspect Oriented Programming)面向切面编程,他的产生就是为了弥补面向对象编程的不足.纵观整个OO帝国,我们实际都在进行对象的纵向封装/继承,但是在这个过程中,实际上是有很多通用的功能模块的,比如上面的执行时间监控,日志记录,异常处理等等.此时就需要我们将这些模块抽象出来,并将逻辑加入不同对象的不同方法中,更职业的说法是“织入”,下面这个图可以很好的说明了为什么我们把这个过程叫做横切:<br><img width="300" src="/2019/04/22/设计模式-代理/aop.png"><br>我们来看下AOP的几个基本概念:<br>切面(Aspect):途中绿色的横条就是一个个的切面,就可以理解成一个实现特定功能的类;<br>连接点(Join Point):是一个泛指的概念,程序中定义的所有方法/语句块都是连接点;<br>切点(PointCut):一组符合某种规则的Join Point;<br>增强(Advice):在连接点所做的操作<br>目标对象(Target):连接点所属对象<br>织入(Weaving):将切面与连接点连接起来并生成代理的过程<br>简单理解一下上面的概念:切面其实很好理解,比如我们为100个类里的所有以add开头的方法增加日志记录,那么我们定义的日志记录类就相当于一个切面,这100个类的所有方法都可能是连接点,所以说是个泛指,真正的切点是我们定义的以add开头的所有方法,这就叫符合某种规则,我们也可以用正则表达式进行匹配.有了切点之后具体的业务写到advice里面,然后生成Proxy且执行就是织入的过程.按照这种理解,一个切面应该包含一个连接点和一个针对连接点的advice.<br>有了上面的简单的理论基础,我们来实现一个简单的Aop框架,为了简单些,就全部基于注解来做.首先我们定义我们需要的注解:<br><figure class="highlight java"><figcaption><span>切面注解</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.aop.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.*;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Aspect &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><figcaption><span>切点注解</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.aop.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.*;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target</span>(ElementType.METHOD)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> PointCut &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//定义切点的匹配规则</span></span><br><span class="line">      <span class="function">String <span class="title">pattern</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>增强注解(拿around举例)</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.aop.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.*;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target</span>(ElementType.METHOD)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Around &#123;</span><br><span class="line"></span><br><span class="line">    <span class="function">String <span class="title">pointcut</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们定义一个日志切面类,来实现具体的日志功能:<br><figure class="highlight java"><figcaption><span>日志切面类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.aop;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.proxy.aop.annotation.Around;</span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.proxy.aop.annotation.Aspect;</span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.proxy.aop.annotation.PointCut;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogAspect</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//指定切点</span></span><br><span class="line">    <span class="meta">@PointCut</span>(pattern=<span class="string">"com.crazymonkey.proxy.aop.test.Target.hehehe()"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">pointCut</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//指定对切点的增强</span></span><br><span class="line">    <span class="meta">@Around</span>(pointcut = <span class="string">"pointCut()"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">doAround</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">        <span class="keyword">long</span> begin = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"开始执行方法-&gt;"</span>+joinPoint.getTargetMethod().getName()+<span class="string">":"</span>+begin);</span><br><span class="line">        Object result = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">           result =    joinPoint.proceed();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable throwable) &#123;</span><br><span class="line">            throwable.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"执行方法结束-&gt;"</span>+joinPoint.getTargetMethod().getName()+<span class="string">":"</span>+end);</span><br><span class="line">        System.out.println(<span class="string">"耗时(ms)："</span>+(end-begin));</span><br><span class="line">        <span class="keyword">if</span>((end-begin)&gt;<span class="number">500</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"方法执行太慢，发送http请求到日志监控模块"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>可以看到,一个日志切面类中包含切点和增强两部分,切点定义了我们需要拦截的方法,这里只写了一个hehehe方法,是为了我们后面逻辑简单,当然这里也可以定义正则表达式匹配.万事具备,只差代理,我们选取一个代理工厂来生成代理:<br><figure class="highlight java"><figcaption><span>日志切面类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.aop;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.proxy.aop.annotation.Around;</span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.proxy.aop.annotation.PointCut;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProxyFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">getProxy</span><span class="params">(  <span class="keyword">final</span> Object realObject, <span class="keyword">final</span> Object aspectObject)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">final</span> Class&lt;?&gt; realObjectClass = realObject.getClass();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">final</span> Class&lt;?&gt; aspectObjectClass = aspectObject.getClass();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> Proxy.newProxyInstance(</span><br><span class="line"></span><br><span class="line">                    realObjectClass.getClassLoader(),</span><br><span class="line"></span><br><span class="line">                    realObjectClass.getInterfaces(),</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">new</span> InvocationHandler()&#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                            <span class="comment">//获取切点信息</span></span><br><span class="line">                            Method [] aspectMethods = aspectObjectClass.getMethods();</span><br><span class="line">                            Method pointCutMethod = <span class="keyword">null</span>;</span><br><span class="line">                            <span class="comment">//获取切点</span></span><br><span class="line">                            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; aspectMethods.length; i++) &#123;</span><br><span class="line">                               <span class="keyword">if</span>(aspectMethods[i].isAnnotationPresent(PointCut.class))&#123;</span><br><span class="line">                                   pointCutMethod = aspectMethods[i];</span><br><span class="line">                                   <span class="keyword">break</span>;</span><br><span class="line">                               &#125;</span><br><span class="line">                            &#125;</span><br><span class="line">                            String pattern =<span class="string">""</span>;</span><br><span class="line">                            <span class="keyword">if</span>(pointCutMethod!=<span class="keyword">null</span>)&#123;</span><br><span class="line">                                <span class="comment">//获取要拦截的规则</span></span><br><span class="line">                                  pattern =  ((PointCut) pointCutMethod.getAnnotations()[<span class="number">0</span>]).pattern();</span><br><span class="line">                            &#125;</span><br><span class="line">                            <span class="comment">//获取增强</span></span><br><span class="line">                            Method adviceMethod = <span class="keyword">null</span>;</span><br><span class="line">                            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; aspectMethods.length; i++) &#123;</span><br><span class="line">                                <span class="keyword">if</span>(aspectMethods[i].isAnnotationPresent(Around.class)&amp;&amp;</span><br><span class="line">                                        ((Around)aspectMethods[i].getAnnotations()[<span class="number">0</span>]).pointcut().equalsIgnoreCase((pointCutMethod.getName()+<span class="string">"()"</span>)))&#123;</span><br><span class="line">                                    adviceMethod = aspectMethods[i];</span><br><span class="line">                                    <span class="keyword">break</span>;</span><br><span class="line">                                &#125;</span><br><span class="line">                            &#125;</span><br><span class="line">                            <span class="comment">//这里直接采用简单的contains来处理</span></span><br><span class="line">                            <span class="keyword">if</span>(pattern.contains(method.getName()))&#123;</span><br><span class="line">                                <span class="keyword">return</span> adviceMethod.invoke(aspectObject,<span class="keyword">new</span> JoinPoint(method,realObject));</span><br><span class="line">                            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                                <span class="keyword">return</span> method.invoke(realObject,args);</span><br><span class="line">                            &#125;</span><br><span class="line"></span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><figcaption><span>连接点封装类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.aop;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JoinPoint</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   Method targetMethod;</span><br><span class="line"></span><br><span class="line">   Object targetObject;</span><br><span class="line"></span><br><span class="line">   Object [] params;</span><br><span class="line"></span><br><span class="line">    JoinPoint(Method targetMethod,Object targetObject)&#123;</span><br><span class="line">        <span class="keyword">this</span>.targetObject = targetObject;</span><br><span class="line">        <span class="keyword">this</span>.targetMethod=targetMethod;</span><br><span class="line">        <span class="keyword">this</span>.params = params;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">Object <span class="title">proceed</span><span class="params">()</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.targetMethod.invoke(targetObject,params);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Method <span class="title">getTargetMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> targetMethod;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTargetMethod</span><span class="params">(Method targetMethod)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.targetMethod = targetMethod;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getTargetObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> targetObject;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTargetObject</span><span class="params">(Object targetObject)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.targetObject = targetObject;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Object[] getParams() &#123;</span><br><span class="line">        <span class="keyword">return</span> params;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setParams</span><span class="params">(Object[] params)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.params = params;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里采用一个匿名内部类来定义handler,这个handler中最重要的逻辑就是根据我们之前定义的注解,通过反射的机制找到切面类中定义的切点和增强信息.这个handler中的内容仅供进行逻辑参考,并不能实际应用.另外我们创建了一个连接点类就是为了封装被代理对象的信息,传到around增强方法当中.至此,我们一个无敌简陋的aop框架就写好了,我们来看下调用者和调用结果:</p>
+<figure class="highlight java"><figcaption><span>调用者</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.proxy.aop;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.proxy.Target;</span><br><span class="line"><span class="keyword">import</span> com.crazymonkey.proxy.TargetInter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestAop</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"hehehe==================================="</span>);</span><br><span class="line">        ((TargetInter) ProxyFactory.getProxy(<span class="keyword">new</span> Target(),<span class="keyword">new</span> LogAspect())).hehehe();</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"hahaha==================================="</span>);</span><br><span class="line">        ((TargetInter) ProxyFactory.getProxy(<span class="keyword">new</span> Target(),<span class="keyword">new</span> LogAspect())).hahaha();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果:<br><img src="/2019/04/22/设计模式-代理/aopresult.png"><br>可以看到,我们只对配置的hehehe方法进行了织入,hahaha方法并没有被附加日志逻辑处理.在调用者的地方,我们采用了简单的new方式来创建目标对象和切面,方便说明.对于真正的SpringAop来说可以交给IOC容器托管,采用注入的方式处理.那样的话我们就可以完全不用关心切面本身,就可以采用配置的方式进行热插拔了.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>代理模式算是设计模式中比较重要且常用的一种,变体和实现方式也比较多.关键词就是委托/增强.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/22/设计模式-装饰者/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1946,194 +2148,13 @@ Ok,现在我们的工厂有了两条生产线,可以生产taskHandler和logHandl
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/22/设计模式-理论基础/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="CrazyMonkey">
-      <meta itemprop="description" content="想起啥来写点啥">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="狂暴的小猴儿">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/03/22/设计模式-理论基础/" class="post-title-link" itemprop="url">设计模式-理论基础</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-03-22 22:10:17" itemprop="dateCreated datePublished" datetime="2019-03-22T22:10:17+08:00">2019-03-22</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-04-17 14:11:20" itemprop="dateModified" datetime="2019-04-17T14:11:20+08:00">2019-04-17</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>&emsp;&emsp;各种设计模式实际上就是一种前人总结的代码设计的经验之谈,是一种编程的思维方式.运用他们可以帮我们写出简洁可扩展性强的代码.<br>&emsp;&emsp;网上的设计模式的文章大多都是举一两个简单的例子进行解释,但是不可否认 有的时候demo和实际应用场景还有一些距离,虽然明白了原理,但是真到了实际写代码的过程中不知道怎么用.遇到了冗余代码想优化也无从下手.这个设计模式的专题目的就是尽量结合实际项目的应用场景,对常用的设计模式进行举例说明,使得使用者对于各种常用设计模式有着更直观的认识.<br>下面是一些设计原则和方法论,刚开始可能理解的不深,但是熟悉了几个常用的设计模式之后,回头看这些抽象的总结就会发现,所有的设计模式都是这些方法论的具体实践,我们不讲理论,我们只是理论的搬运工:</p>
-<ul>
-<li>单一职责原则  </li>
-<li>开放封闭原则</li>
-<li>里氏替换原则</li>
-<li>依赖倒置原则</li>
-<li>接口隔离原则</li>
-<li>迪米特法则<br>详细的理论解释请参考:<a href="https://www.cnblogs.com/dolphin0520/p/3919839.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3919839.html</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <div>
-  
-</div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
+
 
 
           </div>
@@ -2173,7 +2194,7 @@ Ok,现在我们的工厂有了两条生产线,可以生产taskHandler和logHandl
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-count">11</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
