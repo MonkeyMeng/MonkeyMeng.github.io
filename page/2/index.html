@@ -310,6 +310,200 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/10/Mysql索引原理-树结构的基本概念/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/04/10/Mysql索引原理-树结构的基本概念/" class="post-title-link" itemprop="url">Mysql索引原理--树结构的基本概念</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-10 17:14:19" itemprop="dateCreated datePublished" datetime="2019-04-10T17:14:19+08:00">2019-04-10</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-04-12 14:46:06" itemprop="dateModified" datetime="2019-04-12T14:46:06+08:00">2019-04-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h3><p>&emsp;&emsp;这个系列的文章主要目的就是了解Mysql常用的InnoDB存储引擎的Btree类型索引的内部实现原理.在这之前先了解一下什么是树形结构吧,循序渐近别着急.<br>&emsp;&emsp;树形结构实际上就是众多数据结构中的一种,什么是数据结构呢,就是组织数据的方式,什么是数据的组织方式呢?现代社会,我们生活被各种数据包围,知乎看到的文章,游戏刷出来的装备,去超市看到的薯片的配料表,杨二狗涨了300块钱工资…数据的使命就是被消费,说白了就是存储和查找.怎么存的更省地方,怎么找的更快,数据怎么尽可能快速有效的被消费.有一帮人绞尽脑汁的想出了各种各样的数据组织方式,对现实世界的应用场景进行抽象,各种数据结构就产生了,树型结构就是其中的一种,是对一种非线形关系的抽象.</p>
+<h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p><div style="text-align:center"><br>    <img width="300" src="/2019/04/10/Mysql索引原理-树结构的基本概念/simpletree.png"><br></div></p>
+<ul>
+<li>根节点:A就是树的根节点 一棵树的根节点数目可以是0(空树)或1</li>
+<li>父节点/父亲节点/双亲节点:当前节点的上一级节点 B就是C的父节点 A是B的父节点</li>
+<li>子节点/孩子节点:和父节点相对应 C</li>
+<li>兄弟节点:</li>
+<li>祖先:</li>
+<li>子孙:</li>
+<li>度:</li>
+<li>层:</li>
+<li>高度:</li>
+<li>森林</li>
+</ul>
+<h3 id="树的种类及特性"><a href="#树的种类及特性" class="headerlink" title="树的种类及特性"></a>树的种类及特性</h3><h3 id="树的存储表示"><a href="#树的存储表示" class="headerlink" title="树的存储表示"></a>树的存储表示</h3><!--
+<figure class="highlight java"><figcaption><span>[测试代码] []</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> class <span class="title">Test</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String [] args)</span></span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>–&gt;</p>
+<!-- <img width=200 src="Mysql索引原理--树结构的基本概念/1553657360617.jpg" >  -->
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/25/设计模式-工厂/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -724,7 +918,7 @@ Ok,现在我们的工厂有了两条生产线,可以生产taskHandler和logHandl
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="介绍说到原型模式,我们首先想到的可能是Object类提供的clone方法,我们通过这个方法来实现对象的复制,对象为什么要通过复制的方式来创建呢?首先,如果一个对象的构造过程比较复杂或者构造成本比较高(比如设计磁盘io/数据库读写),我们可以考虑只创建一次,如果是配置型的且和具体的业务状态无关,我们可以考虑采用前面提到过的单例的模式来维护,但是如果和具体业务实体相关的,那么我们就可以采用clone的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式-原型">
+<meta property="og:url" content="http://yoursite.com/2019/04/29/设计模式-原型/index.html">
+<meta property="og:site_name" content="狂暴的小猴儿">
+<meta property="og:description" content="介绍说到原型模式,我们首先想到的可能是Object类提供的clone方法,我们通过这个方法来实现对象的复制,对象为什么要通过复制的方式来创建呢?首先,如果一个对象的构造过程比较复杂或者构造成本比较高(比如设计磁盘io/数据库读写),我们可以考虑只创建一次,如果是配置型的且和具体的业务状态无关,我们可以考虑采用前面提到过的单例的模式来维护,但是如果和具体业务实体相关的,那么我们就可以采用clone的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/04/29/设计模式-原型/proto.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/29/设计模式-原型/relation.png">
+<meta property="og:updated_time" content="2019-04-30T03:46:12.982Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式-原型">
+<meta name="twitter:description" content="介绍说到原型模式,我们首先想到的可能是Object类提供的clone方法,我们通过这个方法来实现对象的复制,对象为什么要通过复制的方式来创建呢?首先,如果一个对象的构造过程比较复杂或者构造成本比较高(比如设计磁盘io/数据库读写),我们可以考虑只创建一次,如果是配置型的且和具体的业务状态无关,我们可以考虑采用前面提到过的单例的模式来维护,但是如果和具体业务实体相关的,那么我们就可以采用clone的">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/29/设计模式-原型/proto.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2019/04/29/设计模式-原型/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>设计模式-原型 | 狂暴的小猴儿</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">狂暴的小猴儿</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">CrazyMonkey</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/29/设计模式-原型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">设计模式-原型
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-29 15:29:26" itemprop="dateCreated datePublished" datetime="2019-04-29T15:29:26+08:00">2019-04-29</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-04-30 11:46:12" itemprop="dateModified" datetime="2019-04-30T11:46:12+08:00">2019-04-30</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>说到原型模式,我们首先想到的可能是Object类提供的clone方法,我们通过这个方法来实现对象的复制,对象为什么要通过复制的方式来创建呢?首先,如果一个对象的构造过程比较复杂或者构造成本比较高(比如设计磁盘io/数据库读写),我们可以考虑只创建一次,如果是配置型的且和具体的业务状态无关,我们可以考虑采用前面提到过的单例的模式来维护,但是如果和具体业务实体相关的,那么我们就可以采用clone的方式创建对象;另外,如果我们需要的是很多相似的对象,他们仅有几个属性不同,我们也可以采用原型模式先复制大部分属性,然后针对不同的属性赋值即可.</p>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p>光说不形象哈,举个例子,我们找工作入职都需要签合同,如果我们来设计一个合同系统的话,那么必不可少的需要设计一个Contract实体:<br><figure class="highlight java"><figcaption><span>合同实体类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.prototype;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"></span><br><span class="line"><span class="comment">//合同类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Contract</span> </span>&#123;</span><br><span class="line">    <span class="comment">//甲方</span></span><br><span class="line">    String partyA;</span><br><span class="line">    <span class="comment">//乙方</span></span><br><span class="line">    String partyB;</span><br><span class="line">    <span class="comment">//签订时间</span></span><br><span class="line">    Date createTime;</span><br><span class="line">    <span class="comment">//工资</span></span><br><span class="line">    String salary;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>只是简单挑选了几个属性进行模拟,其实一份合同的属性很多,但是大部分都是所有人都一样的,只有甲方的名字啊,身份证号啊,工资啊什么的不相同,如果做这个合同管理系统的时候我们每次都调用构造方法new一个对象,那么就需要把所有那些固定信息都重填一遍,很麻烦的,是你你也不愿意这么干.最简单的方式,我预先初始化好一份合同模板,来一个人复制一份不就得了,jdk给我们提供了Cloneable接口来标识一个对象能否被克隆,那我么的合同类变成了这样:<br><figure class="highlight java"><figcaption><span>合同实体类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.prototype;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"></span><br><span class="line"><span class="comment">//合同类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Contract</span> <span class="keyword">implements</span> <span class="title">Cloneable</span> </span>&#123;</span><br><span class="line">    <span class="comment">//甲方</span></span><br><span class="line">    String partyA;</span><br><span class="line">    <span class="comment">//乙方</span></span><br><span class="line">    String partyB;</span><br><span class="line">    <span class="comment">//签订时间</span></span><br><span class="line">    Date createTime;</span><br><span class="line">    <span class="comment">//工资</span></span><br><span class="line">    String salary;</span><br><span class="line">    <span class="comment">//头像</span></span><br><span class="line">    HeadImage headImage;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Contract</span><span class="params">(String partyA, String partyB, Date createTime, String salary,HeadImage headImage)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.partyA = partyA;</span><br><span class="line">        <span class="keyword">this</span>.partyB = partyB;</span><br><span class="line">        <span class="keyword">this</span>.createTime = createTime;</span><br><span class="line">        <span class="keyword">this</span>.salary = salary;</span><br><span class="line">        <span class="keyword">this</span>.headImage = headImage;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Contract <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (Contract)<span class="keyword">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Contract&#123;"</span> +</span><br><span class="line">                <span class="string">"partyA='"</span> + partyA + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", partyB='"</span> + partyB + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", createTime="</span> + createTime +</span><br><span class="line">                <span class="string">", salary='"</span> + salary + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", headImage="</span> + headImage +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>其中有个头像类HeadImage用来存储员工的头像:<br><figure class="highlight java"><figcaption><span>员工头像类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.prototype;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HeadImage</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    String imageName=<span class="string">""</span>;</span><br><span class="line"></span><br><span class="line">    String imageUrl = <span class="string">""</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HeadImage</span><span class="params">(String imageName, String imageUrl)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.imageName = imageName;</span><br><span class="line">        <span class="keyword">this</span>.imageUrl = imageUrl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"HeadImage&#123;"</span> +</span><br><span class="line">                <span class="string">"imageName='"</span> + imageName + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", imageUrl='"</span> + imageUrl + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>调用的地方也比较简单,我们复制之后只需要修改特有属性就可以了,不需要关注其他的共有属性:<br><figure class="highlight java"><figcaption><span>调用者</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.prototype;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestContract</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">      Contract aContract =   <span class="keyword">new</span> Contract(<span class="string">"monkeyA"</span>,<span class="string">"Alibaba"</span>,<span class="keyword">new</span> Date(),<span class="string">"100w"</span>,<span class="keyword">new</span> HeadImage(<span class="string">"monkeyA"</span>,<span class="string">"https://xxx/a.jpg"</span>));</span><br><span class="line">        System.out.println(<span class="string">"A:"</span>+aContract);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Contract bContract = aContract.clone();</span><br><span class="line">            bContract.partyA=<span class="string">"monkeyB"</span>;</span><br><span class="line">            bContract.salary=<span class="string">"200w"</span>;</span><br><span class="line">            bContract.headImage.imageUrl=<span class="string">"https://xxx/b.jpg"</span>;</span><br><span class="line">            System.out.println(<span class="string">"A:"</span>+aContract);</span><br><span class="line">            System.out.println(<span class="string">"B:"</span>+bContract);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>看下运行结果:<br><img src="/2019/04/29/设计模式-原型/proto.png"><br>啊呀,发现了点问题啊,我们采用直接修改克隆对象属性的这种方式不靠谱啊,本来想改b的头像路径,结果把a对象的也改了,这说明啥呢,说明这俩的headimage是一个东西.这就是我们常说的浅拷贝.</p>
+<h2 id="浅拷贝与深拷贝"><a href="#浅拷贝与深拷贝" class="headerlink" title="浅拷贝与深拷贝"></a>浅拷贝与深拷贝</h2><p>个人理解,浅拷贝的过程中,基本数据类型不是公用的,但是引用类型是公用的.画个图:<br><img width="400" src="/2019/04/29/设计模式-原型/relation.png"><br>虽然A和B是两个不同的对象,但是A的成员和B的成员引用指向相同的堆内地址,不信可以自己做实验啊,用==判断一下地址是否相同,这种就是浅拷贝.那相对的,深拷贝就很好理解了,就是每个对象拥有独立的属性值的地址,这个就不画图了.那我们怎么实现深拷贝呢,这个方式就比较多了,所有可以生成独立堆内空间的操作,都可以实现,比如序列化/new 一个新的对象,等等,只要不用原来的成员属性对象就可以了</p>
+<p>##总结<br>原型模式的应用场景也比较典型,用在需要频繁创建对象,或者对象构造过程中比较耗资源的场景中,让我们可以通过拷贝的方式快速的创建对象,维护原对象的只读等等.</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+    <div>
+    
+        <div style="text-align:center"><image width="200px" src="/images/wechataccount.jpg"></image></div>
+    
+</div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/26/设计模式-观察者/" rel="next" title="设计模式-观察者">
+                <i class="fa fa-chevron-left"></i> 设计模式-观察者
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CrazyMonkey</p>
+              <div class="site-description motion-element" itemprop="description">想起啥来写点啥</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#举例"><span class="nav-number">2.</span> <span class="nav-text">举例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浅拷贝与深拷贝"><span class="nav-number">3.</span> <span class="nav-text">浅拷贝与深拷贝</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CrazyMonkey</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+   <!-- 代码块复制功能 -->
+  <script type="text/javascript" src="/js/src/clipboard.min.js"></script>  
+  <script type="text/javascript" src="/js/src/clipboard-use.js"></script>
+</body>
+</html>
