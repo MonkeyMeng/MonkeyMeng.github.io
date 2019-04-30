@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="简介先来看一张图不同的生产厂商生产的东西规格有可能不一样,如果一个粗的水管和一个细的水管之间要联通且保证不漏水的话,就需要一个适配器将粗细两根管子连起来.这个适配器既有粗管子的特征又有细管子的特征.我们日常生活中用的各种转接头,插座其实都是适配器的思想. 应用场景举一个实际开发中的例子,在java后端开发中,往往都涉及分层的思想,尤其是稍微大点的项目,分层设计可以使项目结构更加清晰,每一层也可以更">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式-适配器">
+<meta property="og:url" content="http://yoursite.com/2019/04/30/设计模式-适配器/index.html">
+<meta property="og:site_name" content="狂暴的小猴儿">
+<meta property="og:description" content="简介先来看一张图不同的生产厂商生产的东西规格有可能不一样,如果一个粗的水管和一个细的水管之间要联通且保证不漏水的话,就需要一个适配器将粗细两根管子连起来.这个适配器既有粗管子的特征又有细管子的特征.我们日常生活中用的各种转接头,插座其实都是适配器的思想. 应用场景举一个实际开发中的例子,在java后端开发中,往往都涉及分层的思想,尤其是稍微大点的项目,分层设计可以使项目结构更加清晰,每一层也可以更">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/04/30/设计模式-适配器/adapter.png">
+<meta property="og:updated_time" content="2019-04-30T08:21:22.516Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式-适配器">
+<meta name="twitter:description" content="简介先来看一张图不同的生产厂商生产的东西规格有可能不一样,如果一个粗的水管和一个细的水管之间要联通且保证不漏水的话,就需要一个适配器将粗细两根管子连起来.这个适配器既有粗管子的特征又有细管子的特征.我们日常生活中用的各种转接头,插座其实都是适配器的思想. 应用场景举一个实际开发中的例子,在java后端开发中,往往都涉及分层的思想,尤其是稍微大点的项目,分层设计可以使项目结构更加清晰,每一层也可以更">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/30/设计模式-适配器/adapter.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2019/04/30/设计模式-适配器/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>设计模式-适配器 | 狂暴的小猴儿</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">狂暴的小猴儿</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">CrazyMonkey</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/30/设计模式-适配器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CrazyMonkey">
+      <meta itemprop="description" content="想起啥来写点啥">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="狂暴的小猴儿">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">设计模式-适配器
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-30 15:07:22 / 修改时间：16:21:22" itemprop="dateCreated datePublished" datetime="2019-04-30T15:07:22+08:00">2019-04-30</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计模式/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>先来看一张图<br><img width="500" src="/2019/04/30/设计模式-适配器/adapter.png"><br>不同的生产厂商生产的东西规格有可能不一样,如果一个粗的水管和一个细的水管之间要联通且保证不漏水的话,就需要一个适配器将粗细两根管子连起来.这个适配器既有粗管子的特征又有细管子的特征.我们日常生活中用的各种转接头,插座其实都是适配器的思想.</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>举一个实际开发中的例子,在java后端开发中,往往都涉及分层的思想,尤其是稍微大点的项目,分层设计可以使项目结构更加清晰,每一层也可以更加专注于本身的功能.比如常用的分层方式就是表示层-业务逻辑层-持久化层-DB,分别负责参数解析与封装-业务逻辑处理-持久化存储的功能,理想情况下各层职责清晰,并且可以做到很容易的替换,比如我的表示层只需要接收业务逻辑层返回的数据,不用关心实现方式,我的持久化层也只关注存储结果,而不用关心DB具体是MONGODB还是Mysql.这样一来我们在设计的时候就需要考虑代码的可扩展性.我们拿一个最简单的查工资的应用场景来说,首先定义一个工资查询的接口用来处理我们service层的业务逻辑:<br><figure class="highlight java"><figcaption><span>工资查询接口</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.adapter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">SalaryService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取工资总数</span></span><br><span class="line">    <span class="function">String <span class="title">getSalaryByUserId</span><span class="params">(String userId)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//按月获取工资</span></span><br><span class="line">    <span class="function">String <span class="title">getSalaryByMonth</span><span class="params">(String userId,<span class="keyword">int</span> month)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//是否发了年终奖</span></span><br><span class="line">    <span class="function">String <span class="title">isYearEndBonus</span><span class="params">(String year)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><figcaption><span>工资查询接口实现类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.adapter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SalaryServiceImpl</span>  <span class="keyword">implements</span>  <span class="title">SalaryService</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getSalaryByUserId</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"调用DAO层代码查询。。。"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"100W"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getSalaryByMonth</span><span class="params">(String userId, <span class="keyword">int</span> month)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"调用DAO层代码查询。。。"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"50W"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">isYearEndBonus</span><span class="params">(String year)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"调用DAO层代码查询。。。"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"yes"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>controller模拟类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.adapter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SalaryController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SalaryService service = <span class="keyword">new</span> SalaryServiceImpl();</span><br><span class="line">        service.getSalaryByMonth(<span class="string">"111"</span>,<span class="number">2</span>);</span><br><span class="line">        service.getSalaryByUserId(<span class="string">"111"</span>);</span><br><span class="line">        service.isYearEndBonus(<span class="string">"2019"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们通过这个Controller类来模拟真正的web请求来完善这个调用链条,虽然是模拟的,但是我们可以看到 controller-service-dao的调用关系.这个基本的思想有了,现在新需求来了—&gt;老板觉得工资这个东西比较敏感,交给外人来维护比较好一些,所以就把工资计算和维护这块的业务单独拿了出去,交给老板的小舅子开的一个外包公司来做,外包公司提供独立的服务和sdk,来获取他们那边的数据,注意他们比较牛逼,只提供sdk,数据格式什么的也是他们定,假设他们提供的SDK入口类长这样:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.adapter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SalaryQuerySDK</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="function">String <span class="title">querySalaryByUserIdandMonth</span><span class="params">(String userId,<span class="keyword">int</span> month)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"老板的小舅子公司提供的查询方式，包含加密，签名什么的。。。"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"result"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="修改"><a href="#修改" class="headerlink" title="修改"></a>修改</h2><p>首先明确一点,需求变更很正常,不要抵触.我们应该着眼于自己的代码,让他去动态适应这种需求的变更.我们分析一下这个问题,工资的查询方式变了,属于service 层的变化,我们理想的情况是封装变化,且让变化对表示层透明,因此我们不能修改表示层的代码.第二,service层是我们自己的实现逻辑,如果修改了的话万一老板小舅子的公司倒闭了,要重新用回自己的逻辑呢?或者老板有个小姨子也要接进来呢,考虑到这些情况,修改我们自己的service层代码是很愚蠢的行为.既不能改自己的service,又不能改自己的表示层,那么我们就需要重建一个类,既有原先service层的特性,又有新的SDK的特性,来对二者实现适配,那么一个适配器应运而生:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.adapter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SalaryServiceAdapeter</span> <span class="keyword">extends</span> <span class="title">SalaryQuerySDK</span> <span class="keyword">implements</span> <span class="title">SalaryService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getSalaryByUserId</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line">        String result  = <span class="keyword">this</span>.querySalaryByUserIdandMonth(userId,-<span class="number">1</span>);</span><br><span class="line">        System.out.println(<span class="string">"解析result。。。"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"serviceresult"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getSalaryByMonth</span><span class="params">(String userId, <span class="keyword">int</span> month)</span> </span>&#123;</span><br><span class="line">        String result  = <span class="keyword">this</span>.querySalaryByUserIdandMonth(userId,month);</span><br><span class="line">        System.out.println(<span class="string">"解析result。。。"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"serviceresult"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">isYearEndBonus</span><span class="params">(String year)</span> </span>&#123;</span><br><span class="line">        String result  = <span class="keyword">this</span>.querySalaryByUserIdandMonth(<span class="string">""</span>,-<span class="number">1</span>);</span><br><span class="line">        System.out.println(<span class="string">"解析result。。。"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"serviceresult"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>调用者:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.crazymonkey.adapter;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SalaryController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">      <span class="comment">//  SalaryService service = new SalaryServiceImpl();</span></span><br><span class="line">      <span class="comment">//只修改了这里一处</span></span><br><span class="line">        SalaryService service = <span class="keyword">new</span> SalaryServiceAdapeter();</span><br><span class="line">        service.getSalaryByMonth(<span class="string">"111"</span>,<span class="number">2</span>);</span><br><span class="line">        service.getSalaryByUserId(<span class="string">"111"</span>);</span><br><span class="line">        service.isYearEndBonus(<span class="string">"2019"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>由于我们的controller是面向Salaryservice接口编程的,因此将原来我们自己的service,替换成小舅子适配器,仅仅需要改一行代码就ok了,如果采用了一些其他的ioc框架或者spi机制的话,都不用改代码了,这就彻底实现了解耦.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个例子中的适配器同时继承了SDK,并且实现了原有的service接口,是为了着重表示该适配器同时拥有二者的特点,其实这个例子可以不采用继承的方式,<strong>采用组合的方式</strong>由adapter拿到sdk的引用会更好,可扩展性也会更强.因为java的单继承机制,如果考虑到后期数据来源很多的情况下,继承实际上是满足不了需求的,采用组合灵活性更高.这个例子中我是对service进行的扩展,如果原有的service层逻辑很复杂的话,完全可以对dao层进行适配,将sdk提供的数据作为DAO层的数据来源.扩展哪一层无所谓,重点是掌握思想.</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <div>
+  
+    <div>
+    
+        <div style="text-align:center"><image width="200px" src="/images/wechataccount.jpg"></image></div>
+    
+</div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/29/设计模式-原型/" rel="next" title="设计模式-原型">
+                <i class="fa fa-chevron-left"></i> 设计模式-原型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">CrazyMonkey</p>
+              <div class="site-description motion-element" itemprop="description">想起啥来写点啥</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">2.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改"><span class="nav-number">3.</span> <span class="nav-text">修改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CrazyMonkey</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+   <!-- 代码块复制功能 -->
+  <script type="text/javascript" src="/js/src/clipboard.min.js"></script>  
+  <script type="text/javascript" src="/js/src/clipboard-use.js"></script>
+</body>
+</html>
